@@ -132,9 +132,14 @@
                 <i class="fa-solid fa-bookmark shrink-0"></i>
                 <span class="truncate">Outfit caricato: <strong id="loadedPaletteName" class="font-semibold text-amber-100"></strong></span>
             </span>
-            <button onclick="hideLoadedPaletteBanner()" class="text-amber-300 hover:text-amber-100 shrink-0" title="Nascondi">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <span class="flex items-center gap-2 shrink-0">
+                <button onclick="updateLoadedPalette()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 border border-amber-500/40 text-[11px] font-semibold transition flex items-center gap-1.5" title="Sovrascrivi questa palette con le modifiche attuali">
+                    <i class="fa-solid fa-rotate"></i> Aggiorna
+                </button>
+                <button onclick="hideLoadedPaletteBanner()" class="text-amber-300 hover:text-amber-100" title="Nascondi">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </span>
         </div>
     </div>
 
@@ -446,6 +451,7 @@
         let authMode = 'signin';
         let unsubscribePalettes = null;
         let unsubscribeGarments = null;
+        let loadedPaletteId = null;
 
         // Sartorial Color Names Dictionary
         const sartorialColorNames = {
@@ -858,7 +864,6 @@
         }
 
         function toggleTwoTone(index) {
-            hideLoadedPaletteBanner();
             state.palette[index].isTwoTone = !state.palette[index].isTwoTone;
             if (state.palette[index].isTwoTone && !state.palette[index].hex2) {
                 state.palette[index].hex2 = '#FFFFFF';
@@ -868,7 +873,6 @@
         }
 
         function updateLayerColor(index, colorNum, newHex) {
-            hideLoadedPaletteBanner();
             newHex = newHex.toUpperCase();
             if (colorNum === 1) {
                 state.palette[index].hex = newHex;
@@ -882,7 +886,6 @@
         }
 
         function randomizeLayer(index) {
-            hideLoadedPaletteBanner();
             const randomH = Math.floor(Math.random() * 360);
             const randomHex = hslToHex(randomH, 50, 50);
             state.palette[index].hex = randomHex;
@@ -939,6 +942,7 @@
                                 harmonyMode: state.harmonyMode,
                                 palette: JSON.parse(JSON.stringify(state.palette))
                             });
+                            showLoadedPaletteBanner(existing.id, name);
                             showToast("Palette sovrascritta nel guardaroba!");
                         } catch (err) {
                             console.error('Save palette error:', err);
@@ -952,7 +956,7 @@
 
             try {
                 const { db, collection, addDoc, serverTimestamp } = window.fb;
-                await addDoc(collection(db, 'users', currentUser.uid, 'palettes'), {
+                const newDocRef = await addDoc(collection(db, 'users', currentUser.uid, 'palettes'), {
                     name: name,
                     date: new Date().toLocaleDateString('it-IT'),
                     baseHex: state.baseColor,
@@ -960,6 +964,7 @@
                     palette: JSON.parse(JSON.stringify(state.palette)),
                     createdAt: serverTimestamp()
                 });
+                showLoadedPaletteBanner(newDocRef.id, name);
                 closeSaveModal();
                 showToast("Palette salvata nel guardaroba!");
             } catch (err) {
@@ -1061,17 +1066,47 @@
             document.getElementById('harmonyModeBadge').innerText = state.harmonyMode;
             renderMoodboard();
             renderSartorialLayers();
-            showLoadedPaletteBanner(found.name);
+            showLoadedPaletteBanner(found.id, found.name);
             showToast(`Caricata palette: ${found.name}`);
         }
 
-        function showLoadedPaletteBanner(name) {
+        function showLoadedPaletteBanner(id, name) {
+            loadedPaletteId = id;
             document.getElementById('loadedPaletteName').innerText = name;
             document.getElementById('loadedPaletteBanner').classList.remove('hidden');
         }
 
         function hideLoadedPaletteBanner() {
+            loadedPaletteId = null;
             document.getElementById('loadedPaletteBanner').classList.add('hidden');
+        }
+
+        function updateLoadedPalette() {
+            if (!currentUser || !loadedPaletteId) return;
+            const paletteId = loadedPaletteId;
+            const existing = state.savedPalettes.find(p => p.id === paletteId);
+            const name = existing ? existing.name : document.getElementById('loadedPaletteName').innerText;
+
+            openConfirmActionModal(
+                'Aggiornare la palette?',
+                `Aggiorni "${name}" con la combinazione attuale? I colori salvati in precedenza verranno sovrascritti.`,
+                async function () {
+                    try {
+                        const { db, doc, updateDoc } = window.fb;
+                        await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', paletteId), {
+                            date: new Date().toLocaleDateString('it-IT'),
+                            baseHex: state.baseColor,
+                            harmonyMode: state.harmonyMode,
+                            palette: JSON.parse(JSON.stringify(state.palette))
+                        });
+                        showToast(`Palette "${name}" aggiornata!`);
+                    } catch (err) {
+                        console.error('Update palette error:', err);
+                        showToast("Errore nell'aggiornamento della palette");
+                    }
+                },
+                'Aggiorna'
+            );
         }
 
         function openSaveGarmentModal(layerIndex) {
@@ -1195,7 +1230,6 @@
             const layerIndex = pendingLoadGarmentLayerIndex;
             if (!garment || layerIndex === null) return;
 
-            hideLoadedPaletteBanner();
             state.palette[layerIndex].hex = garment.hex;
             state.palette[layerIndex].isTwoTone = !!garment.isTwoTone;
             if (garment.isTwoTone && garment.hex2) {
@@ -1240,6 +1274,7 @@
                     try {
                         const { db, doc, deleteDoc } = window.fb;
                         await deleteDoc(doc(db, 'users', currentUser.uid, 'palettes', id));
+                        if (loadedPaletteId === id) hideLoadedPaletteBanner();
                         showToast("Palette rimossa dal guardaroba");
                     } catch (err) {
                         console.error('Delete palette error:', err);
@@ -1293,6 +1328,8 @@
                         try {
                             await deleteDoc(doc(db, 'users', currentUser.uid, 'palettes', collisionId));
                             await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', renameId), { name: newName });
+                            if (loadedPaletteId === collisionId) hideLoadedPaletteBanner();
+                            if (loadedPaletteId === renameId) showLoadedPaletteBanner(renameId, newName);
                             showToast("Palette rinominata e sovrascritta!");
                         } catch (err) {
                             console.error('Rename palette error:', err);
@@ -1303,7 +1340,10 @@
                 );
             } else {
                 updateDoc(doc(db, 'users', currentUser.uid, 'palettes', renameId), { name: newName })
-                    .then(() => showToast("Nome aggiornato!"))
+                    .then(() => {
+                        if (loadedPaletteId === renameId) showLoadedPaletteBanner(renameId, newName);
+                        showToast("Nome aggiornato!");
+                    })
                     .catch((err) => {
                         console.error('Rename palette error:', err);
                         showToast("Errore nella rinomina della palette");
@@ -1357,6 +1397,7 @@
                 palettesSnap.forEach(d => batch.delete(d.ref));
                 garmentsSnap.forEach(d => batch.delete(d.ref));
                 await batch.commit();
+                hideLoadedPaletteBanner();
                 closeConfirmClearModal();
                 showToast("Guardaroba svuotato");
             } catch (err) {
