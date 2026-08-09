@@ -1425,9 +1425,39 @@
             pendingEditGarmentId = null;
         }
 
+        async function propagateGarmentToPalettes(oldGarment, newData) {
+            if (!oldGarment || !currentUser) return;
+            if (oldGarment.layerIndex !== newData.layerIndex) return;
+
+            const matches = (item) => item.layer === oldGarment.layerLabel
+                && item.hex === oldGarment.hex
+                && !!item.isTwoTone === !!oldGarment.isTwoTone
+                && (!oldGarment.isTwoTone || (item.hex2 || null) === (oldGarment.hex2 || null));
+
+            const toUpdate = [];
+            state.savedPalettes.forEach(p => {
+                if (!Array.isArray(p.palette)) return;
+                let touched = false;
+                const updatedPalette = p.palette.map(item => {
+                    if (!matches(item)) return item;
+                    touched = true;
+                    return { ...item, hex: newData.hex, hex2: newData.hex2, isTwoTone: newData.isTwoTone };
+                });
+                if (touched) toUpdate.push({ id: p.id, palette: updatedPalette });
+            });
+
+            if (toUpdate.length === 0) return;
+
+            const { db, doc, writeBatch } = window.fb;
+            const batch = writeBatch(db);
+            toUpdate.forEach(p => batch.update(doc(db, 'users', currentUser.uid, 'palettes', p.id), { palette: p.palette }));
+            await batch.commit();
+        }
+
         async function confirmAddGarment() {
             if (!currentUser) return;
             const editId = pendingEditGarmentId;
+            const oldGarment = editId ? state.savedGarments.find(g => g.id === editId) : null;
             const layerIndex = parseInt(document.getElementById('addGarmentLayerSelect').value, 10);
             const layerLabel = layerCatalogLabels[layerIndex];
             const hex = document.getElementById('addGarmentColorInput').value.toUpperCase();
@@ -1460,6 +1490,7 @@
                             await deleteDoc(doc(db, 'users', currentUser.uid, 'garments', collisionId));
                             if (editId) {
                                 await updateDoc(doc(db, 'users', currentUser.uid, 'garments', editId), buildGarmentData());
+                                await propagateGarmentToPalettes(oldGarment, buildGarmentData());
                             } else {
                                 await addDoc(collection(db, 'users', currentUser.uid, 'garments'), { ...buildGarmentData(), createdAt: serverTimestamp() });
                             }
@@ -1478,6 +1509,7 @@
                 const { db, doc, collection, addDoc, updateDoc, serverTimestamp } = window.fb;
                 if (editId) {
                     await updateDoc(doc(db, 'users', currentUser.uid, 'garments', editId), buildGarmentData());
+                    await propagateGarmentToPalettes(oldGarment, buildGarmentData());
                     closeAddGarmentModal();
                     showToast("Capo aggiornato!");
                 } else {
