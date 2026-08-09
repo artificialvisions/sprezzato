@@ -616,8 +616,57 @@
             }
         }
 
+        async function migrateLegacyLayers(uid) {
+            try {
+                const { db, collection, getDocs, writeBatch } = window.fb;
+                const garmentsSnap = await getDocs(collection(db, 'users', uid, 'garments'));
+                const palettesSnap = await getDocs(collection(db, 'users', uid, 'palettes'));
+
+                const batch = writeBatch(db);
+                let changed = false;
+
+                garmentsSnap.forEach(d => {
+                    const data = d.data();
+                    if (data.layerLabel === '04. Calze') {
+                        // La categoria Calze non esiste più: il capo va rimosso.
+                        batch.delete(d.ref);
+                        changed = true;
+                    } else if (data.layerLabel === '05. Scarpe & Accessori') {
+                        // Le vere scarpe scalano dal vecchio indice 4 al nuovo indice 3.
+                        batch.update(d.ref, { layerIndex: 3, layerLabel: '04. Scarpe & Accessori' });
+                        changed = true;
+                    }
+                });
+
+                palettesSnap.forEach(d => {
+                    const data = d.data();
+                    if (!Array.isArray(data.palette)) return;
+                    const hasLegacyShape = data.palette.some(item => item.layer === '04. Calze' || item.layer === '05. Scarpe & Accessori');
+                    if (!hasLegacyShape) return;
+
+                    const migratedPalette = data.palette
+                        .filter(item => item.layer !== '04. Calze')
+                        .map(item => item.layer === '05. Scarpe & Accessori'
+                            ? { ...item, layer: '04. Scarpe & Accessori' }
+                            : item
+                        );
+                    batch.update(d.ref, { palette: migratedPalette });
+                    changed = true;
+                });
+
+                if (changed) {
+                    await batch.commit();
+                    showToast("Guardaroba aggiornato: livello Calze rimosso!");
+                }
+            } catch (err) {
+                console.error('Legacy layer migration error:', err);
+            }
+        }
+
         function attachFirestoreListeners(uid) {
             const { db, collection, query, orderBy, onSnapshot } = window.fb;
+
+            migrateLegacyLayers(uid);
 
             const palettesQuery = query(collection(db, 'users', uid, 'palettes'), orderBy('createdAt', 'desc'));
             unsubscribePalettes = onSnapshot(palettesQuery, (snapshot) => {
