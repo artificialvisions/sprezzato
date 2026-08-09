@@ -243,6 +243,32 @@
             </div>
         </section>
 
+        <!-- GARMENT CATALOG SECTION -->
+        <section class="border-t border-slate-800/80 pt-8 space-y-4">
+            <div>
+                <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
+                    <i class="fa-solid fa-shirt text-amber-500"></i> Il Tuo Guardaroba Capi
+                </h2>
+                <p class="text-xs text-slate-400">Tutti i capi che possiedi già, catalogati per tipo. Salvane di nuovi con l'icona segnalibro su ogni livello dell'abbinamento qui sopra.</p>
+            </div>
+            <div id="garmentCatalog" class="space-y-6">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- SHOPPING LIST SECTION -->
+        <section class="border-t border-slate-800/80 pt-8 space-y-4">
+            <div>
+                <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-amber-500"></i> Lista Acquisti
+                </h2>
+                <p class="text-xs text-slate-400">Colori usati nelle combinazioni salvate che non hai ancora in guardaroba.</p>
+            </div>
+            <div id="shoppingListContainer" class="space-y-6">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
     </main>
 
     <!-- Modal: Salva Palette con Nome -->
@@ -440,8 +466,11 @@
             palette: [],
             savedPalettes: [],
             savedGarments: [],
-            sortKey: 'recent'
+            sortKey: 'recent',
+            shoppingListItems: []
         };
+
+        const layerCatalogLabels = ['01. Pantalone', '02. Camicia', '03. Giacca', '04. Calze', '05. Scarpe & Accessori'];
 
         let pendingRenameId = null;
         let confirmActionCallback = null;
@@ -594,6 +623,7 @@
             unsubscribePalettes = onSnapshot(palettesQuery, (snapshot) => {
                 state.savedPalettes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderSavedPalettes();
+                renderShoppingList();
             }, (err) => {
                 console.error('Palettes sync error:', err);
                 showToast("Errore di sincronizzazione palette");
@@ -602,6 +632,9 @@
             const garmentsQuery = query(collection(db, 'users', uid, 'garments'), orderBy('createdAt', 'desc'));
             unsubscribeGarments = onSnapshot(garmentsQuery, (snapshot) => {
                 state.savedGarments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderGarmentCatalog();
+                renderShoppingList();
+                renderSartorialLayers();
                 if (pendingLoadGarmentLayerIndex !== null) {
                     renderLoadGarmentList();
                 }
@@ -759,6 +792,16 @@
             renderSartorialLayers();
         }
 
+        function isLayerOwned(layerIndex, item) {
+            return state.savedGarments.some(g => {
+                if (g.layerIndex !== layerIndex) return false;
+                if (g.hex !== item.hex) return false;
+                if (!!g.isTwoTone !== !!item.isTwoTone) return false;
+                if (item.isTwoTone && (g.hex2 || null) !== (item.hex2 || null)) return false;
+                return true;
+            });
+        }
+
         function renderMoodboard() {
             const container = document.getElementById('moodboardCardsContainer');
             container.innerHTML = '';
@@ -766,7 +809,7 @@
             state.palette.forEach((p, idx) => {
                 const card = document.createElement('div');
                 card.className = "p-3.5 rounded-2xl shadow-xl border border-white/10 backdrop-blur-md flex items-center justify-between transition-all duration-300 hover:scale-[1.02]";
-                
+
                 if (p.isTwoTone && p.hex2) {
                     card.style.background = `linear-gradient(135deg, ${p.hex} 50%, ${p.hex2} 50%)`;
                 } else {
@@ -775,6 +818,7 @@
 
                 const textColorClass = getContrastYIQ(p.hex);
                 const hexDisplay = (p.isTwoTone && p.hex2) ? `${p.hex} / ${p.hex2}` : p.hex;
+                const owned = isLayerOwned(idx, p);
 
                 card.innerHTML = `
                     <div class="${textColorClass}">
@@ -782,7 +826,10 @@
                         <div class="font-bold text-sm tracking-wide">${p.name}</div>
                         <div class="text-[11px] font-mono opacity-80 mt-0.5">${hexDisplay}</div>
                     </div>
-                    <span class="text-xs font-bold font-mono opacity-60 bg-black/20 px-2 py-1 rounded-md">0${idx + 1}</span>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        ${!owned ? `<span class="text-[10px] bg-red-500 text-white px-1.5 py-1.5 rounded-md leading-none" title="Da acquistare"><i class="fa-solid fa-cart-shopping"></i></span>` : ''}
+                        <span class="text-xs font-bold font-mono opacity-60 bg-black/20 px-2 py-1 rounded-md">0${idx + 1}</span>
+                    </div>
                 `;
                 container.appendChild(card);
             });
@@ -812,12 +859,17 @@
                                 <span class="bg-black/30 text-white px-1.5 py-0.5 rounded text-[10px]">0${idx + 1}</span>
                             </div>
                             <div class="min-w-0">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider truncate">${item.layer}</h4>
                                     ${isShirt ? `
                                         <button onclick="toggleTwoTone(${idx})" class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${isTwoTone ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'}">
                                             ${isTwoTone ? '2 Colori (Righe)' : 'Tinta Unita'}
                                         </button>
+                                    ` : ''}
+                                    ${!isLayerOwned(idx, item) ? `
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1">
+                                            <i class="fa-solid fa-cart-shopping"></i> Da acquistare
+                                        </span>
                                     ` : ''}
                                 </div>
                                 <div class="font-semibold text-sm text-slate-100 truncate">${item.name}</div>
@@ -1262,6 +1314,161 @@
                 },
                 'Elimina'
             );
+        }
+
+        function renderGarmentCatalog() {
+            const container = document.getElementById('garmentCatalog');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (state.savedGarments.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-shirt text-2xl mb-2 opacity-50"></i>
+                        <p class="text-xs">Nessun capo salvato nel guardaroba.</p>
+                        <p class="text-[11px] text-slate-600">Usa l'icona segnalibro su ogni livello dell'abbinamento per salvare i capi che possiedi.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            layerCatalogLabels.forEach((label, idx) => {
+                const items = state.savedGarments.filter(g => g.layerIndex === idx);
+                if (items.length === 0) return;
+
+                const group = document.createElement('div');
+                group.className = 'space-y-2';
+
+                const cardsHtml = items.map(g => {
+                    const swatchStyle = (g.isTwoTone && g.hex2)
+                        ? `background: linear-gradient(135deg, ${g.hex} 50%, ${g.hex2} 50%)`
+                        : `background-color: ${g.hex}`;
+                    const hexDisplay = (g.isTwoTone && g.hex2) ? `${g.hex} / ${g.hex2}` : g.hex;
+                    return `
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center gap-3 hover:border-slate-700 transition">
+                            <span class="w-10 h-10 rounded-lg border border-white/20 shrink-0" style="${swatchStyle}"></span>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-semibold text-slate-100 truncate">${g.name}</div>
+                                <div class="text-[11px] font-mono text-slate-500 truncate">${hexDisplay}</div>
+                            </div>
+                            <button onclick="deleteGarment('${g.id}')" class="p-1 text-slate-500 hover:text-red-400 transition shrink-0" title="Elimina capo">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                group.innerHTML = `
+                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">${label} <span class="text-slate-500 font-normal normal-case">(${items.length})</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${cardsHtml}</div>
+                `;
+                container.appendChild(group);
+            });
+        }
+
+        function getShoppingListItems() {
+            const map = new Map();
+            state.savedPalettes.forEach(saved => {
+                if (!Array.isArray(saved.palette)) return;
+                saved.palette.forEach((item, idx) => {
+                    if (isLayerOwned(idx, item)) return;
+                    const key = `${idx}|${item.hex}|${item.isTwoTone ? (item.hex2 || '') : ''}`;
+                    if (!map.has(key)) {
+                        map.set(key, {
+                            layerIndex: idx,
+                            layerLabel: item.layer,
+                            hex: item.hex,
+                            hex2: item.hex2 || null,
+                            isTwoTone: !!item.isTwoTone,
+                            name: item.name,
+                            paletteNames: []
+                        });
+                    }
+                    map.get(key).paletteNames.push(saved.name);
+                });
+            });
+            return Array.from(map.values());
+        }
+
+        function renderShoppingList() {
+            const container = document.getElementById('shoppingListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.shoppingListItems = getShoppingListItems();
+            const items = state.shoppingListItems;
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-champagne-glasses text-2xl mb-2 opacity-50"></i>
+                        <p class="text-xs">Hai già tutto quello che serve!</p>
+                        <p class="text-[11px] text-slate-600">Ogni colore usato nelle tue combinazioni salvate è presente nel guardaroba capi.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            layerCatalogLabels.forEach((label, idx) => {
+                const groupEntries = items
+                    .map((it, i) => ({ it, i }))
+                    .filter(({ it }) => it.layerIndex === idx);
+                if (groupEntries.length === 0) return;
+
+                const group = document.createElement('div');
+                group.className = 'space-y-2';
+
+                const cardsHtml = groupEntries.map(({ it, i }) => {
+                    const swatchStyle = (it.isTwoTone && it.hex2)
+                        ? `background: linear-gradient(135deg, ${it.hex} 50%, ${it.hex2} 50%)`
+                        : `background-color: ${it.hex}`;
+                    const hexDisplay = (it.isTwoTone && it.hex2) ? `${it.hex} / ${it.hex2}` : it.hex;
+                    const paletteList = it.paletteNames.join(', ');
+                    return `
+                        <div class="bg-slate-900/90 border border-red-500/20 rounded-xl p-3 flex items-center gap-3 hover:border-red-500/40 transition">
+                            <span class="w-10 h-10 rounded-lg border border-white/20 shrink-0" style="${swatchStyle}"></span>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-semibold text-slate-100 truncate">${it.name}</div>
+                                <div class="text-[11px] font-mono text-slate-500 truncate">${hexDisplay}</div>
+                                <div class="text-[10px] text-slate-600 truncate" title="${paletteList}">In: ${paletteList}</div>
+                            </div>
+                            <button onclick="markShoppingItemPurchased(${i})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shrink-0" title="Segna come acquistato e aggiungilo al guardaroba capi">
+                                <i class="fa-solid fa-check"></i> Acquistato
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                group.innerHTML = `
+                    <h3 class="text-xs font-bold text-red-300 uppercase tracking-widest">${label} <span class="text-slate-500 font-normal normal-case">(${groupEntries.length})</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${cardsHtml}</div>
+                `;
+                container.appendChild(group);
+            });
+        }
+
+        async function markShoppingItemPurchased(index) {
+            if (!currentUser) return;
+            const item = state.shoppingListItems[index];
+            if (!item) return;
+
+            try {
+                const { db, collection, addDoc, serverTimestamp } = window.fb;
+                await addDoc(collection(db, 'users', currentUser.uid, 'garments'), {
+                    layerIndex: item.layerIndex,
+                    layerLabel: item.layerLabel,
+                    name: item.name,
+                    hex: item.hex,
+                    hex2: item.hex2,
+                    isTwoTone: item.isTwoTone,
+                    date: new Date().toLocaleDateString('it-IT'),
+                    createdAt: serverTimestamp()
+                });
+                showToast(`"${item.name}" aggiunto al guardaroba capi!`);
+            } catch (err) {
+                console.error('Mark purchased error:', err);
+                showToast("Errore nel salvataggio del capo");
+            }
         }
 
         function openDeletePaletteConfirm(id) {
