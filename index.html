@@ -136,6 +136,9 @@
                 <button onclick="updateLoadedPalette()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 border border-amber-500/40 text-[11px] font-semibold transition flex items-center gap-1.5" title="Sovrascrivi questa palette con le modifiche attuali">
                     <i class="fa-solid fa-rotate"></i> Aggiorna
                 </button>
+                <button onclick="openSaveAsModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition flex items-center gap-1.5" title="Salva questa combinazione come nuova palette, senza toccare l'originale">
+                    <i class="fa-solid fa-copy"></i> Salva con nome
+                </button>
                 <button onclick="hideLoadedPaletteBanner()" class="text-amber-300 hover:text-amber-100" title="Nascondi">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -1006,6 +1009,14 @@
         function openSaveModal() {
             const defaultName = `${state.palette[0].name} & ${state.palette[1].name}`;
             document.getElementById('paletteNameInput').value = defaultName;
+            const modal = document.getElementById('saveModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function openSaveAsModal() {
+            const existing = state.savedPalettes.find(p => p.id === loadedPaletteId);
+            const baseName = existing ? existing.name : document.getElementById('loadedPaletteName').innerText;
+            document.getElementById('paletteNameInput').value = `${baseName} (copia)`;
             const modal = document.getElementById('saveModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
         }
