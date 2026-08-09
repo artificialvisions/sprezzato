@@ -38,6 +38,38 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(100, 116, 139, 1);
         }
+        .tab-btn {
+            color: rgb(148 163 184);
+            border-color: transparent;
+        }
+        .tab-btn:hover {
+            color: rgb(226 232 240);
+            background-color: rgba(30, 41, 59, 0.6);
+        }
+        .tab-btn.active {
+            color: rgb(252 211 77);
+            border-color: rgb(245 158 11);
+        }
+        .tab-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.1rem;
+            height: 1.1rem;
+            padding: 0 0.3rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(51, 65, 85, 0.8);
+            color: rgb(203 213 225);
+        }
+        .tab-btn.active .tab-badge {
+            background: rgba(245, 158, 11, 0.2);
+            color: rgb(252 211 77);
+        }
+        .tab-badge:empty {
+            display: none;
+        }
     </style>
 </head>
 <body class="h-full flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
@@ -146,9 +178,28 @@
         </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+    <!-- Tab Navigation -->
+    <nav class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-16 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 overflow-x-auto">
+            <button onclick="switchTab('builder')" data-tab="builder" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-shirt"></i> Crea Outfit
+            </button>
+            <button onclick="switchTab('palettes')" data-tab="palettes" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-box-archive"></i> Palette <span id="paletteCountBadge" class="tab-badge"></span>
+            </button>
+            <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-vest"></i> Capi <span id="garmentCountBadge" class="tab-badge"></span>
+            </button>
+            <button onclick="switchTab('shopping')" data-tab="shopping" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-cart-shopping"></i> Da Comprare <span id="shoppingCountBadge" class="tab-badge"></span>
+            </button>
+        </div>
+    </nav>
 
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <div id="panel-builder" class="tab-panel">
         <!-- Interactive Workspace: Left Moodboard Canvas / Right Sartorial Breakdown -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
@@ -205,9 +256,11 @@
             </div>
 
         </div>
+        </div>
 
         <!-- SAVED PALETTES / WARDROBE SECTION -->
-        <section class="border-t border-slate-800/80 pt-8 space-y-4">
+        <div id="panel-palettes" class="tab-panel hidden">
+        <section class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
@@ -239,9 +292,11 @@
                 <!-- Injected via JS -->
             </div>
         </section>
+        </div>
 
         <!-- GARMENT CATALOG SECTION -->
-        <section class="border-t border-slate-800/80 pt-8 space-y-4">
+        <div id="panel-garments" class="tab-panel hidden">
+        <section class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
@@ -257,9 +312,11 @@
                 <!-- Injected via JS -->
             </div>
         </section>
+        </div>
 
         <!-- SHOPPING LIST SECTION -->
-        <section class="border-t border-slate-800/80 pt-8 space-y-4">
+        <div id="panel-shopping" class="tab-panel hidden">
+        <section class="space-y-4">
             <div>
                 <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
                     <i class="fa-solid fa-cart-shopping text-amber-500"></i> Lista Acquisti
@@ -270,6 +327,7 @@
                 <!-- Injected via JS -->
             </div>
         </section>
+        </div>
 
     </main>
 
@@ -331,7 +389,7 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-slate-300 mb-1">Tipo di capo:</label>
-                <select id="addGarmentLayerSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                <select id="addGarmentLayerSelect" onchange="updateAddGarmentTwoToneVisibility()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
                     <!-- Iniettato via JS -->
                 </select>
             </div>
@@ -340,6 +398,17 @@
                 <div class="flex items-center gap-3">
                     <input type="color" id="addGarmentColorInput" value="#0A1128" onchange="document.getElementById('addGarmentColorHex').innerText = this.value.toUpperCase()" class="w-12 h-10 rounded-lg border border-slate-800 bg-slate-950 cursor-pointer p-0.5">
                     <span id="addGarmentColorHex" class="font-mono text-xs text-slate-400">#0A1128</span>
+                </div>
+            </div>
+            <div id="addGarmentTwoToneSection" class="hidden space-y-2">
+                <label class="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+                    <input type="checkbox" id="addGarmentTwoToneCheckbox" onchange="toggleAddGarmentTwoTone()" class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500 focus:ring-offset-0">
+                    Camicia a righe / due colori
+                </label>
+                <div id="addGarmentHex2Row" class="hidden items-center gap-3">
+                    <input type="color" id="addGarmentColor2Input" value="#FFFFFF" onchange="document.getElementById('addGarmentColor2Hex').innerText = this.value.toUpperCase()" class="w-12 h-10 rounded-lg border border-slate-800 bg-slate-950 cursor-pointer p-0.5">
+                    <span id="addGarmentColor2Hex" class="font-mono text-xs text-slate-400">#FFFFFF</span>
+                    <span class="text-[11px] text-slate-500">Colore riga</span>
                 </div>
             </div>
             <div>
@@ -594,6 +663,7 @@
                 submitBtn.disabled = false;
                 authMode = 'signin';
                 updateAuthScreenLabels();
+                switchTab('builder');
                 attachFirestoreListeners(user.uid);
             } else {
                 document.getElementById('appShell').classList.add('hidden');
@@ -648,6 +718,26 @@
             } catch (err) {
                 console.error('Legacy layer migration error:', err);
             }
+        }
+
+        function switchTab(tab) {
+            ['builder', 'palettes', 'garments', 'shopping'].forEach(t => {
+                const panel = document.getElementById('panel-' + t);
+                if (panel) panel.classList.toggle('hidden', t !== tab);
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function updateTabBadges() {
+            const paletteBadge = document.getElementById('paletteCountBadge');
+            const garmentBadge = document.getElementById('garmentCountBadge');
+            const shoppingBadge = document.getElementById('shoppingCountBadge');
+            if (paletteBadge) paletteBadge.innerText = state.savedPalettes.length || '';
+            if (garmentBadge) garmentBadge.innerText = state.savedGarments.length || '';
+            if (shoppingBadge) shoppingBadge.innerText = (state.shoppingListItems || []).length || '';
         }
 
         function attachFirestoreListeners(uid) {
@@ -1157,6 +1247,7 @@
             renderMoodboard();
             renderSartorialLayers();
             showLoadedPaletteBanner(found.id, found.name);
+            switchTab('builder');
             showToast(`Caricata palette: ${found.name}`);
         }
 
@@ -1268,6 +1359,25 @@
             }
         }
 
+        function updateAddGarmentTwoToneVisibility() {
+            const layerIndex = parseInt(document.getElementById('addGarmentLayerSelect').value, 10);
+            const isShirt = layerIndex === 1;
+            document.getElementById('addGarmentTwoToneSection').classList.toggle('hidden', !isShirt);
+            if (!isShirt) {
+                document.getElementById('addGarmentTwoToneCheckbox').checked = false;
+                const row = document.getElementById('addGarmentHex2Row');
+                row.classList.add('hidden');
+                row.classList.remove('flex');
+            }
+        }
+
+        function toggleAddGarmentTwoTone() {
+            const checked = document.getElementById('addGarmentTwoToneCheckbox').checked;
+            const row = document.getElementById('addGarmentHex2Row');
+            row.classList.toggle('hidden', !checked);
+            row.classList.toggle('flex', checked);
+        }
+
         function openAddGarmentModal() {
             pendingEditGarmentId = null;
             document.getElementById('addGarmentModalTitle').innerHTML = '<i class="fa-solid fa-plus text-amber-500"></i> Aggiungi Capo al Guardaroba';
@@ -1276,7 +1386,10 @@
             select.innerHTML = layerCatalogLabels.map((label, idx) => `<option value="${idx}">${label}</option>`).join('');
             document.getElementById('addGarmentColorInput').value = '#0A1128';
             document.getElementById('addGarmentColorHex').innerText = '#0A1128';
+            document.getElementById('addGarmentColor2Input').value = '#FFFFFF';
+            document.getElementById('addGarmentColor2Hex').innerText = '#FFFFFF';
             document.getElementById('addGarmentNameInput').value = '';
+            updateAddGarmentTwoToneVisibility();
             const modal = document.getElementById('addGarmentModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
         }
@@ -1293,6 +1406,15 @@
             document.getElementById('addGarmentColorInput').value = garment.hex;
             document.getElementById('addGarmentColorHex').innerText = garment.hex;
             document.getElementById('addGarmentNameInput').value = garment.name;
+            updateAddGarmentTwoToneVisibility();
+            const isTwoTone = !!garment.isTwoTone;
+            const hex2 = (garment.hex2 || '#FFFFFF').toUpperCase();
+            document.getElementById('addGarmentTwoToneCheckbox').checked = isTwoTone;
+            document.getElementById('addGarmentColor2Input').value = hex2;
+            document.getElementById('addGarmentColor2Hex').innerText = hex2;
+            const row = document.getElementById('addGarmentHex2Row');
+            row.classList.toggle('hidden', !isTwoTone);
+            row.classList.toggle('flex', isTwoTone);
             const modal = document.getElementById('addGarmentModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
         }
@@ -1311,14 +1433,16 @@
             const hex = document.getElementById('addGarmentColorInput').value.toUpperCase();
             const nameInput = document.getElementById('addGarmentNameInput').value.trim();
             const name = nameInput || generateSartorialName(hex, layerIndex);
+            const isTwoTone = layerIndex === 1 && document.getElementById('addGarmentTwoToneCheckbox').checked;
+            const hex2 = isTwoTone ? document.getElementById('addGarmentColor2Input').value.toUpperCase() : null;
 
             const buildGarmentData = () => ({
                 layerIndex: layerIndex,
                 layerLabel: layerLabel,
                 name: name,
                 hex: hex,
-                hex2: null,
-                isTwoTone: false,
+                hex2: hex2,
+                isTwoTone: isTwoTone,
                 date: new Date().toLocaleDateString('it-IT')
             });
 
@@ -1542,6 +1666,7 @@
 
             state.shoppingListItems = getShoppingListItems();
             const items = state.shoppingListItems;
+            updateTabBadges();
 
             if (items.length === 0) {
                 container.innerHTML = `
