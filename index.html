@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprezzato - Moodboard Sartoriale & Palette Spezzati</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 1);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold text-lg">
+                    <i class="fa-solid fa-shirt"></i>
+                </div>
+                <div>
+                    <h1 class="font-cinzel font-bold text-lg sm:text-xl tracking-wider text-amber-100 uppercase">Sprezzato</h1>
+                    <p class="text-[10px] text-slate-400 hidden sm:block tracking-wide">L'Arte dello Spezzato Sartoriale</p>
+                </div>
+            </div>
+
+            <!-- Global Action Toolbar -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+                <button onclick="generateHarmony(true)" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-md shadow-amber-500/10">
+                    <i class="fa-solid fa-lock"></i>
+                    <span class="hidden md:inline">Nuova Armonia</span> (Base Fissa)
+                </button>
+                <button onclick="generateHarmony(false)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-dice"></i>
+                    <span class="hidden sm:inline">Randomizza Tutto</span>
+                </button>
+                <button onclick="openSaveModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-bookmark text-amber-400"></i>
+                    <span class="hidden sm:inline">Salva Palette</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loaded Palette Banner -->
+    <div id="loadedPaletteBanner" class="hidden bg-amber-500/10 border-b border-amber-500/30 text-amber-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
+            <span class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-bookmark shrink-0"></i>
+                <span class="truncate">Outfit caricato: <strong id="loadedPaletteName" class="font-semibold text-amber-100"></strong></span>
+            </span>
+            <button onclick="hideLoadedPaletteBanner()" class="text-amber-300 hover:text-amber-100 shrink-0" title="Nascondi">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+
+        <!-- Interactive Workspace: Left Moodboard Canvas / Right Sartorial Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- LEFT: Floating Moodboard Display -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-serif-title text-lg text-amber-200 flex items-center gap-2">
+                        <i class="fa-solid fa-image text-amber-500"></i> Moodboard Visivo
+                    </h2>
+                    <span id="harmonyModeBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-amber-500/30">
+                        Complementare
+                    </span>
+                </div>
+
+                <!-- Canvas Area with Textured Background -->
+                <div id="moodboardCanvas" class="relative rounded-3xl p-6 md:p-8 min-h-[460px] flex flex-col justify-center items-center shadow-2xl border border-slate-800 overflow-hidden transition-all duration-500 bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80');">
+                    
+                    <!-- Overlay Cards Grid (Floating Stack) -->
+                    <div id="moodboardCardsContainer" class="w-full max-w-sm space-y-3.5 relative z-10">
+                        <!-- Dynamic Swatches Generated via JS -->
+                    </div>
+
+                    <!-- Ambient Glow Effect -->
+                    <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                </div>
+
+                <!-- Background Style Selector for Moodboard -->
+                <div class="flex items-center justify-between gap-2 px-1 text-xs text-slate-400">
+                    <span>Sfondo Moodboard:</span>
+                    <div class="flex gap-2">
+                        <button onclick="changeMoodboardBg('riviera')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px]">Riviera</button>
+                        <button onclick="changeMoodboardBg('linen')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px]">Lino</button>
+                        <button onclick="changeMoodboardBg('dark')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px]">Minimal</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Sartorial 5-Layer Controls & Customizer -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="font-serif-title text-lg text-amber-200">Abbinamento Spezzato</h2>
+                        <p class="text-xs text-slate-400">Personalizza i 5 livelli del tuo outfit sartoriale.</p>
+                    </div>
+                    <button onclick="copyAllHex()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-copy"></i> Copia HEX Palette
+                    </button>
+                </div>
+
+                <!-- The 5 Sartorial Layers Container -->
+                <div id="sartorialLayersContainer" class="space-y-3">
+                    <!-- Layer cards injected dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SAVED PALETTES / WARDROBE SECTION -->
+        <section class="border-t border-slate-800/80 pt-8 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
+                        <i class="fa-solid fa-box-archive text-amber-500"></i> Il Tuo Guardaroba Palette
+                    </h2>
+                    <p class="text-xs text-slate-400">Combinazioni e capi salvati sul dispositivo. Scarica o importa il guardaroba completo per trasferirlo su altri dispositivi.</p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="exportJsonPalettes()" class="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold transition flex items-center gap-1.5" title="Scarica il file .json del tuo guardaroba">
+                        <i class="fa-solid fa-download"></i> Scarica Guardaroba
+                    </button>
+                    <button onclick="openImportModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5" title="Carica o incolla un file JSON">
+                        <i class="fa-solid fa-upload text-amber-400"></i> Importa Guardaroba
+                    </button>
+                    <button onclick="openConfirmClearModal()" class="text-xs text-slate-500 hover:text-red-400 transition flex items-center gap-1 ml-2">
+                        <i class="fa-solid fa-trash-can"></i> Svuota
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sort Control -->
+            <div class="flex items-center justify-end gap-2">
+                <label for="sortPalettesSelect" class="text-[11px] text-slate-400">Ordina per:</label>
+                <select id="sortPalettesSelect" onchange="setSortMode(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500">
+                    <option value="recent">Più recenti</option>
+                    <option value="name">Nome combinazione</option>
+                    <option value="jacket">Colore giacca</option>
+                    <option value="pants">Colore pantalone</option>
+                    <option value="shirt">Colore camicia</option>
+                </select>
+            </div>
+
+            <!-- Saved Grid -->
+            <div id="savedPalettesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Salva Palette con Nome -->
+    <div id="saveModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-amber-500"></i> Salva Outfit nel Guardaroba
+                </h3>
+                <button onclick="closeSaveModal()" class="text-slate-400 hover:text-slate-100 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Nome della combinazione:</label>
+                <input type="text" id="paletteNameInput" placeholder="es. Blazer Riviera & Terracotta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeSaveModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button onclick="confirmSavePalette()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Outfit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Importa o Incolla JSON -->
+    <div id="importModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                    <i class="fa-solid fa-file-import text-amber-500"></i> Importa Guardaroba
+                </h3>
+                <button onclick="closeImportModal()" class="text-slate-400 hover:text-slate-100 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Tab / Opzione 1: Carica File -->
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider">Opzione 1: Carica File JSON</label>
+                <div class="flex items-center gap-2">
+                    <input type="file" id="jsonFileInput" accept=".json" class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700">
+                </div>
+            </div>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="flex-shrink mx-3 text-[10px] text-slate-500 uppercase font-mono">Oppure</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <!-- Opzione 2: Incolla Testo JSON -->
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider">Opzione 2: Incolla Testo JSON</label>
+                <textarea id="jsonPasteInput" rows="4" placeholder="Incolla qui il codice JSON del guardaroba copiato dal telefono o desktop..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500"></textarea>
+            </div>
+
+            <!-- Modalità Unisci o Sostituisci -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                <span class="block text-[11px] font-semibold text-slate-300">Modalità di caricamento:</span>
+                <div class="flex items-center gap-4 text-xs">
+                    <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                        <input type="radio" name="importMode" value="merge" checked class="accent-amber-500"> Unisci ai salvati
+                    </label>
+                    <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+                        <input type="radio" name="importMode" value="replace" class="accent-amber-500"> Sostituisci tutto
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeImportModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button onclick="processImport()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Conferma Importazione</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Rinomina Palette -->
+    <div id="renameModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                    <i class="fa-solid fa-pen text-amber-500"></i> Rinomina Combinazione
+                </h3>
+                <button onclick="closeRenameModal()" class="text-slate-400 hover:text-slate-100 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Nuovo nome:</label>
+                <input type="text" id="renameNameInput" placeholder="es. Blazer Riviera & Terracotta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeRenameModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button onclick="confirmRenamePalette()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Nome</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Salva Capo nel Guardaroba -->
+    <div id="saveGarmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-amber-500"></i> Salva Capo — <span id="saveGarmentModalLabel"></span>
+                </h3>
+                <button onclick="closeSaveGarmentModal()" class="text-slate-400 hover:text-slate-100 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Nome del capo:</label>
+                <input type="text" id="garmentNameInput" placeholder="es. Blazer Cognac" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeSaveGarmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button onclick="confirmSaveGarment()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Capo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Carica Capo dal Guardaroba -->
+    <div id="loadGarmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="loadGarmentModalTitle" class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                    <i class="fa-solid fa-shirt text-amber-500"></i> Carica Capo
+                </h3>
+                <button onclick="closeLoadGarmentModal()" class="text-slate-400 hover:text-slate-100 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="loadGarmentList" class="space-y-2 max-h-80 overflow-y-auto">
+                <!-- Injected via JS -->
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeLoadGarmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Conferma Generica (Eliminazione / Sovrascrittura) -->
+    <div id="confirmActionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
+            <div id="confirmActionIcon" class="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 id="confirmActionTitle" class="font-serif-title text-base text-slate-100">Confermi l'azione?</h3>
+                <p id="confirmActionMessage" class="text-xs text-slate-400 mt-1"></p>
+            </div>
+            <div class="flex justify-center gap-2 pt-2">
+                <button onclick="closeConfirmActionModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button id="confirmActionButton" onclick="executeConfirmAction()" class="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-md">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Conferma Svuota -->
+    <div id="confirmClearModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
+            <div class="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-serif-title text-base text-slate-100">Svuotare il guardaroba?</h3>
+                <p class="text-xs text-slate-400 mt-1">Questa azione cancellerà tutte le palette e i capi salvati sul dispositivo. Ti consigliamo di scaricare prima un backup del guardaroba.</p>
+            </div>
+            <div class="flex justify-center gap-2 pt-2">
+                <button onclick="closeConfirmClearModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button onclick="confirmClearWardrobe()" class="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-md">Svuota Tutto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-600">
+        <p>SPREZZATO &bull; L'Arte dello Spezzato Sartoriale Maschile</p>
+    </footer>
+
+    <!-- Toast Notification UI -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 px-4 py-3 rounded-xl bg-amber-500 text-slate-950 font-semibold text-xs shadow-xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMessage">Operazione completata!</span>
+    </div>
+
+    <script>
+        // Global Application State
+        const state = {
+            baseColor: '#0A1128', // Default Dark Navy Blue
+            baseName: 'Dark Navy',
+            harmonyMode: 'Complementare',
+            palette: [],
+            savedPalettes: [],
+            savedGarments: [],
+            sortKey: 'recent'
+        };
+
+        let pendingRenameId = null;
+        let confirmActionCallback = null;
+        let pendingSaveGarmentLayerIndex = null;
+        let pendingLoadGarmentLayerIndex = null;
+
+        // Sartorial Color Names Dictionary
+        const sartorialColorNames = {
+            '#0A1128': 'Dark Navy',
+            '#183451': 'Riviera Blue',
+            '#A9501C': 'Terracotta',
+            '#FF7A2A': 'Tangerine Petal',
+            '#F3ECDE': 'Soft Ivory',
+            '#D4AF83': 'Sand Linen',
+            '#FFF490': 'Lemon Chiffon',
+            '#C88A8A': 'Rosa Antico',
+            '#6B7280': 'Grigio Flannel',
+            '#3B2319': 'Testa di Moro',
+            '#8B5A2B': 'Cognac Leather',
+            '#581C25': 'Bordeaux Oxblood',
+            '#4A5D4E': 'Verde Salvia',
+            '#E5E0D8': 'Ecru Lino',
+            '#2B2D42': 'Antracite Night',
+            '#3D0C11': 'Deep Burgundy',
+            '#1E3A2B': 'Forest Green',
+            '#4A2E1A': 'Tobacco Brown',
+            '#FFFFFF': 'Bianco Puro'
+        };
+
+        // Initialize Application
+        window.onload = function () {
+            loadSavedPalettesFromStorage();
+            loadSavedGarmentsFromStorage();
+            generateHarmony(true);
+        };
+
+        function hexToHsl(hex) {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            let r = parseInt(hex.substring(0, 2), 16) / 255;
+            let g = parseInt(hex.substring(2, 4), 16) / 255;
+            let b = parseInt(hex.substring(4, 6), 16) / 255;
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0;
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+        }
+
+        function hslToHex(h, s, l) {
+            s /= 100;
+            l /= 100;
+            let c = (1 - Math.abs(2 * l - 1)) * s;
+            let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            let m = l - c / 2;
+            let r = 0, g = 0, b = 0;
+            if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+            else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+            else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+            else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+            else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+            else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+            r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+            g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+            b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+            return `#${r}${g}${b}`.toUpperCase();
+        }
+
+        function getContrastYIQ(hexcolor) {
+            hexcolor = hexcolor.replace('#', '');
+            if (hexcolor.length === 3) hexcolor = hexcolor.split('').map(c => c + c).join('');
+            const r = parseInt(hexcolor.substr(0, 2), 16);
+            const g = parseInt(hexcolor.substr(2, 2), 16);
+            const b = parseInt(hexcolor.substr(4, 2), 16);
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return (yiq >= 128) ? 'text-slate-900' : 'text-slate-100';
+        }
+
+        function generateSartorialName(hex, layerIndex) {
+            if (sartorialColorNames[hex.toUpperCase()]) {
+                return sartorialColorNames[hex.toUpperCase()];
+            }
+            const [h, s, l] = hexToHsl(hex);
+
+            if (layerIndex === 0) return 'Pantalone Base Sartoriale';
+            if (layerIndex === 3) return 'Calze Ton-sur-Ton';
+            if (layerIndex === 4) return 'Pelle Espresso / Cuoio';
+
+            if (l < 15) return 'Dark Night';
+            if (l > 88) return 'Soft Ivory / Bianco Lino';
+            if (s < 12) {
+                if (l < 35) return 'Antracite Flannel';
+                if (l < 65) return 'Grigio Hopsack';
+                return 'Grigio Chiaro Melange';
+            }
+            if (h >= 10 && h < 45) {
+                if (l < 25) return 'Moka Espresso';
+                if (l < 45) return 'Testa di Moro';
+                if (l < 65) return 'Cognac / Terracotta';
+                if (l < 80) return 'Sand Linen';
+                return 'Beige Sabbiato';
+            }
+            if (h >= 45 && h < 70) return 'Giallo Limone';
+            if (h >= 70 && h < 160) return 'Verde Salvia';
+            if (h >= 160 && h < 260) {
+                if (l < 20) return 'Dark Navy';
+                if (l < 40) return 'Riviera Blue';
+                if (l < 65) return 'Blu Avio';
+                return 'Celeste Lino';
+            }
+            if (h >= 260 && h < 340) return 'Rosa Antico / Bordeaux';
+            return 'Tangerine / Terracotta';
+        }
+
+        function generateHarmony(keepBase = false) {
+            hideLoadedPaletteBanner();
+            const presetBases = ['#0A1128', '#183451', '#2B2D42', '#3D0C11', '#1E3A2B', '#4A2E1A'];
+
+            if (!keepBase) {
+                state.baseColor = presetBases[Math.floor(Math.random() * presetBases.length)];
+            }
+
+            const [h, s, l] = hexToHsl(state.baseColor);
+            const modes = ['Complementare', 'Riviera & Citrus', 'Warm Autumn', 'Split-Complementare', 'Monocromatico'];
+            state.harmonyMode = modes[Math.floor(Math.random() * modes.length)];
+
+            let p0 = state.baseColor;
+            let p1_hex, p1_hex2, isTwoTone = false;
+            let p2_hex, p3_hex, p4_hex;
+
+            if (state.harmonyMode === 'Riviera & Citrus') {
+                p1_hex = '#A9501C';
+                p1_hex2 = '#F3ECDE';
+                isTwoTone = true;
+                p2_hex = '#D4AF83';
+                p3_hex = p0;
+                p4_hex = '#3B2319';
+            } else if (state.harmonyMode === 'Warm Autumn') {
+                p1_hex = '#FF7A2A';
+                p1_hex2 = '#FFFFFF';
+                isTwoTone = true;
+                p2_hex = '#8B5A2B';
+                p3_hex = p0;
+                p4_hex = '#23140F';
+            } else if (state.harmonyMode === 'Monocromatico') {
+                p1_hex = hslToHex(h, Math.max(10, s - 20), Math.min(85, l + 50));
+                p1_hex2 = '#FFFFFF';
+                isTwoTone = Math.random() > 0.5;
+                p2_hex = hslToHex(h, Math.max(10, s - 10), Math.min(70, l + 30));
+                p3_hex = p0;
+                p4_hex = hslToHex(h, 30, 15);
+            } else {
+                const compH = (h + 180) % 360;
+                p1_hex = hslToHex(compH, Math.min(75, s + 20), Math.min(75, Math.max(45, l + 20)));
+                p1_hex2 = '#F3ECDE';
+                isTwoTone = Math.random() > 0.4;
+                p2_hex = hslToHex((compH + 30) % 360, 25, 70);
+                p3_hex = p0;
+                p4_hex = '#3B2319';
+            }
+
+            state.palette = [
+                { layer: '01. Pantalone', hex: p0, note: 'Ancora neutra del guardaroba', name: generateSartorialName(p0, 0) },
+                { layer: '02. Camicia', hex: p1_hex, hex2: p1_hex2, isTwoTone: isTwoTone, note: 'Complementare o righe accentate', name: generateSartorialName(p1_hex, 1) },
+                { layer: '03. Giacca', hex: p2_hex, note: 'Tono desaturato per la giacca spezzata', name: generateSartorialName(p2_hex, 2) },
+                { layer: '04. Calze', hex: p3_hex, note: 'Raccordo tra pantalone e scarpa', name: generateSartorialName(p3_hex, 3) },
+                { layer: '05. Scarpe & Accessori', hex: p4_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p4_hex, 4) }
+            ];
+
+            document.getElementById('harmonyModeBadge').innerText = state.harmonyMode;
+            renderMoodboard();
+            renderSartorialLayers();
+        }
+
+        function renderMoodboard() {
+            const container = document.getElementById('moodboardCardsContainer');
+            container.innerHTML = '';
+
+            state.palette.forEach((p, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-3.5 rounded-2xl shadow-xl border border-white/10 backdrop-blur-md flex items-center justify-between transition-all duration-300 hover:scale-[1.02]";
+                
+                if (p.isTwoTone && p.hex2) {
+                    card.style.background = `linear-gradient(135deg, ${p.hex} 50%, ${p.hex2} 50%)`;
+                } else {
+                    card.style.backgroundColor = p.hex;
+                }
+
+                const textColorClass = getContrastYIQ(p.hex);
+                const hexDisplay = (p.isTwoTone && p.hex2) ? `${p.hex} / ${p.hex2}` : p.hex;
+
+                card.innerHTML = `
+                    <div class="${textColorClass}">
+                        <div class="text-[10px] uppercase font-mono tracking-widest opacity-75">${p.layer}</div>
+                        <div class="font-bold text-sm tracking-wide">${p.name}</div>
+                        <div class="text-[11px] font-mono opacity-80 mt-0.5">${hexDisplay}</div>
+                    </div>
+                    <span class="text-xs font-bold font-mono opacity-60 bg-black/20 px-2 py-1 rounded-md">0${idx + 1}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderSartorialLayers() {
+            const container = document.getElementById('sartorialLayersContainer');
+            container.innerHTML = '';
+
+            state.palette.forEach((item, idx) => {
+                const layerCard = document.createElement('div');
+                layerCard.className = 'bg-slate-900/80 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition space-y-3';
+                
+                const isShirt = idx === 1; // 02. Camicia
+                const isTwoTone = !!item.isTwoTone;
+
+                let swatchStyle = (isTwoTone && item.hex2)
+                    ? `background: linear-gradient(135deg, ${item.hex} 50%, ${item.hex2} 50%)`
+                    : `background-color: ${item.hex}`;
+
+                const hexDisplay = (isTwoTone && item.hex2) ? `${item.hex} / ${item.hex2}` : item.hex;
+
+                layerCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl border border-white/20 shadow-md flex items-center justify-center font-bold text-xs shrink-0" style="${swatchStyle}">
+                                <span class="bg-black/30 text-white px-1.5 py-0.5 rounded text-[10px]">0${idx + 1}</span>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider truncate">${item.layer}</h4>
+                                    ${isShirt ? `
+                                        <button onclick="toggleTwoTone(${idx})" class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${isTwoTone ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'}">
+                                            ${isTwoTone ? '2 Colori (Righe)' : 'Tinta Unita'}
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                <div class="font-semibold text-sm text-slate-100 truncate">${item.name}</div>
+                                <div class="text-[11px] text-slate-400 truncate">${item.note}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls Row -->
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/60 flex-wrap">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <label class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-eye-dropper text-amber-400"></i>
+                                <span>${isTwoTone ? 'Base' : 'Colore'}</span>
+                                <input type="color" value="${item.hex}" onchange="updateLayerColor(${idx}, 1, this.value)" class="opacity-0 w-0 h-0">
+                            </label>
+
+                            ${isTwoTone ? `
+                                <label class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 cursor-pointer">
+                                    <i class="fa-solid fa-eye-dropper text-amber-400"></i>
+                                    <span>Riga</span>
+                                    <input type="color" value="${item.hex2 || '#FFFFFF'}" onchange="updateLayerColor(${idx}, 2, this.value)" class="opacity-0 w-0 h-0">
+                                </label>
+                            ` : ''}
+
+                            <button onclick="randomizeLayer(${idx})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs" title="Randomizza solo questo capo">
+                                <i class="fa-solid fa-dice"></i>
+                            </button>
+                            <button onclick="openSaveGarmentModal(${idx})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs" title="Salva questo capo nel guardaroba">
+                                <i class="fa-solid fa-bookmark"></i>
+                            </button>
+                            <button onclick="openLoadGarmentModal(${idx})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs" title="Carica un capo salvato">
+                                <i class="fa-solid fa-shirt"></i>
+                            </button>
+                        </div>
+
+                        <div class="font-mono text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+                            ${hexDisplay}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(layerCard);
+            });
+        }
+
+        function toggleTwoTone(index) {
+            hideLoadedPaletteBanner();
+            state.palette[index].isTwoTone = !state.palette[index].isTwoTone;
+            if (state.palette[index].isTwoTone && !state.palette[index].hex2) {
+                state.palette[index].hex2 = '#FFFFFF';
+            }
+            renderMoodboard();
+            renderSartorialLayers();
+        }
+
+        function updateLayerColor(index, colorNum, newHex) {
+            hideLoadedPaletteBanner();
+            newHex = newHex.toUpperCase();
+            if (colorNum === 1) {
+                state.palette[index].hex = newHex;
+                if (index === 0) state.baseColor = newHex;
+            } else {
+                state.palette[index].hex2 = newHex;
+            }
+            state.palette[index].name = generateSartorialName(state.palette[index].hex, index);
+            renderMoodboard();
+            renderSartorialLayers();
+        }
+
+        function randomizeLayer(index) {
+            hideLoadedPaletteBanner();
+            const randomH = Math.floor(Math.random() * 360);
+            const randomHex = hslToHex(randomH, 50, 50);
+            state.palette[index].hex = randomHex;
+            if (state.palette[index].isTwoTone) {
+                state.palette[index].hex2 = '#FFFFFF';
+            }
+            state.palette[index].name = generateSartorialName(randomHex, index);
+            renderMoodboard();
+            renderSartorialLayers();
+        }
+
+        function changeMoodboardBg(type) {
+            const canvas = document.getElementById('moodboardCanvas');
+            if (type === 'riviera') {
+                canvas.style.backgroundImage = `linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80')`;
+            } else if (type === 'linen') {
+                canvas.style.backgroundImage = `linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9)), url('https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=800&q=80')`;
+            } else {
+                canvas.style.backgroundImage = 'none';
+            }
+        }
+
+        function openSaveModal() {
+            const defaultName = `${state.palette[0].name} & ${state.palette[1].name}`;
+            document.getElementById('paletteNameInput').value = defaultName;
+            const modal = document.getElementById('saveModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeSaveModal() {
+            const modal = document.getElementById('saveModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function confirmSavePalette() {
+            const nameInput = document.getElementById('paletteNameInput').value.trim();
+            const name = nameInput || `${state.palette[0].name} & ${state.palette[1].name}`;
+
+            const existing = state.savedPalettes.find(p => p.name.trim().toLowerCase() === name.toLowerCase());
+
+            if (existing) {
+                closeSaveModal();
+                openConfirmActionModal(
+                    'Sovrascrivere la palette?',
+                    `Esiste già una palette chiamata "${name}" nel guardaroba. Vuoi sovrascriverla con questa nuova combinazione?`,
+                    function () {
+                        existing.date = new Date().toLocaleDateString('it-IT');
+                        existing.baseHex = state.baseColor;
+                        existing.harmonyMode = state.harmonyMode;
+                        existing.palette = JSON.parse(JSON.stringify(state.palette));
+                        saveSavedPalettesToStorage();
+                        renderSavedPalettes();
+                        showToast("Palette sovrascritta nel guardaroba!");
+                    },
+                    'Sovrascrivi'
+                );
+                return;
+            }
+
+            const savedItem = {
+                id: Date.now().toString(),
+                name: name,
+                date: new Date().toLocaleDateString('it-IT'),
+                baseHex: state.baseColor,
+                harmonyMode: state.harmonyMode,
+                palette: JSON.parse(JSON.stringify(state.palette))
+            };
+
+            state.savedPalettes.unshift(savedItem);
+            saveSavedPalettesToStorage();
+            renderSavedPalettes();
+            closeSaveModal();
+            showToast("Palette salvata nel guardaroba!");
+        }
+
+        function loadSavedPalettesFromStorage() {
+            try {
+                const stored = localStorage.getItem('sartorial_saved_palettes');
+                if (stored) {
+                    state.savedPalettes = JSON.parse(stored);
+                }
+            } catch (e) {
+                state.savedPalettes = [];
+            }
+            renderSavedPalettes();
+        }
+
+        function saveSavedPalettesToStorage() {
+            try {
+                localStorage.setItem('sartorial_saved_palettes', JSON.stringify(state.savedPalettes));
+            } catch (e) {
+                console.warn("Storage exception", e);
+            }
+        }
+
+        function getSortedSavedPalettes() {
+            const list = [...state.savedPalettes];
+            const key = state.sortKey || 'recent';
+            const layerIndex = key === 'pants' ? 0 : key === 'shirt' ? 1 : key === 'jacket' ? 2 : -1;
+
+            if (key === 'name') {
+                list.sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
+            } else if (layerIndex !== -1) {
+                list.sort((a, b) => {
+                    const hexA = (a.palette[layerIndex] && a.palette[layerIndex].hex) || '#000000';
+                    const hexB = (b.palette[layerIndex] && b.palette[layerIndex].hex) || '#000000';
+                    const [ha, sa, la] = hexToHsl(hexA);
+                    const [hb, sb, lb] = hexToHsl(hexB);
+                    if (ha !== hb) return ha - hb;
+                    return la - lb;
+                });
+            }
+            return list;
+        }
+
+        function setSortMode(mode) {
+            state.sortKey = mode;
+            renderSavedPalettes();
+        }
+
+        function renderSavedPalettes() {
+            const grid = document.getElementById('savedPalettesGrid');
+            grid.innerHTML = '';
+
+            if (state.savedPalettes.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-folder-open text-2xl mb-2 opacity-50"></i>
+                        <p class="text-xs">Nessuna palette salvata nel guardaroba.</p>
+                        <p class="text-[11px] text-slate-600">Clicca su "Salva Palette" in alto per conservare le tue combinazioni preferite.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            getSortedSavedPalettes().forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/90 border border-slate-800 rounded-2xl p-4 hover:border-slate-700 transition flex flex-col justify-between gap-3 space-y-2";
+                
+                let swatchesHtml = `<div class="flex h-6 rounded-lg overflow-hidden border border-white/10">`;
+                item.palette.forEach((p) => {
+                    const bg = (p.isTwoTone && p.hex2) 
+                        ? `background: linear-gradient(135deg, ${p.hex} 50%, ${p.hex2} 50%)`
+                        : `background-color: ${p.hex}`;
+                    swatchesHtml += `<div class="flex-1" style="${bg}" title="${p.layer}: ${p.hex}"></div>`;
+                });
+                swatchesHtml += `</div>`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <h4 class="font-bold text-sm text-amber-200 truncate">${item.name}</h4>
+                            <span class="text-[10px] font-mono text-slate-500">${item.date}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 block">${item.harmonyMode}</span>
+                    </div>
+
+                    ${swatchesHtml}
+
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+                        <button onclick="loadSavedPalette('${item.id}')" class="px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Carica
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openRenameModal('${item.id}')" class="p-1 text-slate-500 hover:text-amber-400 transition" title="Rinomina">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            <button onclick="openDeletePaletteConfirm('${item.id}')" class="p-1 text-slate-500 hover:text-red-400 transition" title="Elimina">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function loadSavedPalette(id) {
+            const found = state.savedPalettes.find(p => p.id === id);
+            if (!found) return;
+
+            state.baseColor = found.baseHex;
+            state.harmonyMode = found.harmonyMode;
+            state.palette = JSON.parse(JSON.stringify(found.palette));
+
+            document.getElementById('harmonyModeBadge').innerText = state.harmonyMode;
+            renderMoodboard();
+            renderSartorialLayers();
+            showLoadedPaletteBanner(found.name);
+            showToast(`Caricata palette: ${found.name}`);
+        }
+
+        function showLoadedPaletteBanner(name) {
+            document.getElementById('loadedPaletteName').innerText = name;
+            document.getElementById('loadedPaletteBanner').classList.remove('hidden');
+        }
+
+        function hideLoadedPaletteBanner() {
+            document.getElementById('loadedPaletteBanner').classList.add('hidden');
+        }
+
+        function loadSavedGarmentsFromStorage() {
+            try {
+                const stored = localStorage.getItem('sartorial_saved_garments');
+                if (stored) {
+                    state.savedGarments = JSON.parse(stored);
+                }
+            } catch (e) {
+                state.savedGarments = [];
+            }
+        }
+
+        function saveSavedGarmentsToStorage() {
+            try {
+                localStorage.setItem('sartorial_saved_garments', JSON.stringify(state.savedGarments));
+            } catch (e) {
+                console.warn("Storage exception", e);
+            }
+        }
+
+        function openSaveGarmentModal(layerIndex) {
+            pendingSaveGarmentLayerIndex = layerIndex;
+            const layerItem = state.palette[layerIndex];
+            document.getElementById('saveGarmentModalLabel').innerText = layerItem.layer;
+            document.getElementById('garmentNameInput').value = layerItem.name;
+            const modal = document.getElementById('saveGarmentModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeSaveGarmentModal() {
+            const modal = document.getElementById('saveGarmentModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingSaveGarmentLayerIndex = null;
+        }
+
+        function confirmSaveGarment() {
+            const layerIndex = pendingSaveGarmentLayerIndex;
+            if (layerIndex === null) return;
+            const layerItem = state.palette[layerIndex];
+            const nameInput = document.getElementById('garmentNameInput').value.trim();
+            const name = nameInput || layerItem.name;
+
+            const buildGarment = (id) => ({
+                id: id,
+                layerIndex: layerIndex,
+                layerLabel: layerItem.layer,
+                name: name,
+                hex: layerItem.hex,
+                hex2: layerItem.hex2 || null,
+                isTwoTone: !!layerItem.isTwoTone,
+                date: new Date().toLocaleDateString('it-IT')
+            });
+
+            const existing = state.savedGarments.find(g => g.layerIndex === layerIndex && g.name.trim().toLowerCase() === name.toLowerCase());
+
+            if (existing) {
+                closeSaveGarmentModal();
+                openConfirmActionModal(
+                    'Sovrascrivere il capo?',
+                    `Esiste già un capo chiamato "${name}" per ${layerItem.layer}. Vuoi sovrascriverlo?`,
+                    function () {
+                        Object.assign(existing, buildGarment(existing.id));
+                        saveSavedGarmentsToStorage();
+                        showToast("Capo sovrascritto nel guardaroba!");
+                    },
+                    'Sovrascrivi'
+                );
+                return;
+            }
+
+            state.savedGarments.unshift(buildGarment(Date.now().toString()));
+            saveSavedGarmentsToStorage();
+            closeSaveGarmentModal();
+            showToast("Capo salvato nel guardaroba!");
+        }
+
+        function openLoadGarmentModal(layerIndex) {
+            pendingLoadGarmentLayerIndex = layerIndex;
+            const layerLabel = state.palette[layerIndex].layer;
+            document.getElementById('loadGarmentModalTitle').innerText = `Carica Capo — ${layerLabel}`;
+            renderLoadGarmentList();
+            const modal = document.getElementById('loadGarmentModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeLoadGarmentModal() {
+            const modal = document.getElementById('loadGarmentModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingLoadGarmentLayerIndex = null;
+        }
+
+        function renderLoadGarmentList() {
+            const container = document.getElementById('loadGarmentList');
+            const layerIndex = pendingLoadGarmentLayerIndex;
+            const items = state.savedGarments.filter(g => g.layerIndex === layerIndex);
+
+            if (items.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Nessun capo salvato per questo livello.</p>`;
+                return;
+            }
+
+            container.innerHTML = items.map(g => {
+                const swatchStyle = (g.isTwoTone && g.hex2)
+                    ? `background: linear-gradient(135deg, ${g.hex} 50%, ${g.hex2} 50%)`
+                    : `background-color: ${g.hex}`;
+                const hexDisplay = (g.isTwoTone && g.hex2) ? `${g.hex} / ${g.hex2}` : g.hex;
+                return `
+                    <div class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                        <button onclick="applyGarment('${g.id}')" class="flex items-center gap-2.5 min-w-0 flex-1 text-left">
+                            <span class="w-8 h-8 rounded-lg border border-white/20 shrink-0" style="${swatchStyle}"></span>
+                            <span class="min-w-0">
+                                <span class="block text-xs font-semibold text-slate-100 truncate">${g.name}</span>
+                                <span class="block text-[10px] font-mono text-slate-500 truncate">${hexDisplay}</span>
+                            </span>
+                        </button>
+                        <button onclick="deleteGarment('${g.id}')" class="p-1 text-slate-500 hover:text-red-400 transition shrink-0" title="Elimina capo">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applyGarment(id) {
+            const garment = state.savedGarments.find(g => g.id === id);
+            const layerIndex = pendingLoadGarmentLayerIndex;
+            if (!garment || layerIndex === null) return;
+
+            hideLoadedPaletteBanner();
+            state.palette[layerIndex].hex = garment.hex;
+            state.palette[layerIndex].isTwoTone = !!garment.isTwoTone;
+            if (garment.isTwoTone && garment.hex2) {
+                state.palette[layerIndex].hex2 = garment.hex2;
+            }
+            state.palette[layerIndex].name = garment.name;
+            if (layerIndex === 0) state.baseColor = garment.hex;
+
+            renderMoodboard();
+            renderSartorialLayers();
+            closeLoadGarmentModal();
+            showToast(`Capo "${garment.name}" applicato!`);
+        }
+
+        function deleteGarment(id) {
+            const garment = state.savedGarments.find(g => g.id === id);
+            if (!garment) return;
+            openConfirmActionModal(
+                'Eliminare il capo?',
+                `Stai per eliminare "${garment.name}" dal guardaroba capi.`,
+                function () {
+                    state.savedGarments = state.savedGarments.filter(g => g.id !== id);
+                    saveSavedGarmentsToStorage();
+                    renderLoadGarmentList();
+                    showToast("Capo eliminato dal guardaroba");
+                },
+                'Elimina'
+            );
+        }
+
+        function openDeletePaletteConfirm(id) {
+            const item = state.savedPalettes.find(p => p.id === id);
+            if (!item) return;
+            openConfirmActionModal(
+                'Eliminare la palette?',
+                `Stai per eliminare "${item.name}" dal guardaroba. L'operazione non è reversibile.`,
+                function () {
+                    state.savedPalettes = state.savedPalettes.filter(p => p.id !== id);
+                    saveSavedPalettesToStorage();
+                    renderSavedPalettes();
+                    showToast("Palette rimossa dal guardaroba");
+                },
+                'Elimina'
+            );
+        }
+
+        function openRenameModal(id) {
+            const item = state.savedPalettes.find(p => p.id === id);
+            if (!item) return;
+            pendingRenameId = id;
+            document.getElementById('renameNameInput').value = item.name;
+            const modal = document.getElementById('renameModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeRenameModal() {
+            const modal = document.getElementById('renameModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingRenameId = null;
+        }
+
+        function confirmRenamePalette() {
+            const newName = document.getElementById('renameNameInput').value.trim();
+            if (!newName) {
+                showToast("Inserisci un nome valido");
+                return;
+            }
+            const currentItem = state.savedPalettes.find(p => p.id === pendingRenameId);
+            if (!currentItem) {
+                closeRenameModal();
+                return;
+            }
+
+            const collision = state.savedPalettes.find(p => p.id !== pendingRenameId && p.name.trim().toLowerCase() === newName.toLowerCase());
+            const renameId = pendingRenameId;
+            closeRenameModal();
+
+            if (collision) {
+                const collisionId = collision.id;
+                openConfirmActionModal(
+                    'Sovrascrivere la palette?',
+                    `Esiste già una palette chiamata "${newName}". Rinominando, quella esistente verrà sovrascritta con questa combinazione.`,
+                    function () {
+                        state.savedPalettes = state.savedPalettes.filter(p => p.id !== collisionId);
+                        const item = state.savedPalettes.find(p => p.id === renameId);
+                        if (item) item.name = newName;
+                        saveSavedPalettesToStorage();
+                        renderSavedPalettes();
+                        showToast("Palette rinominata e sovrascritta!");
+                    },
+                    'Sovrascrivi'
+                );
+            } else {
+                currentItem.name = newName;
+                saveSavedPalettesToStorage();
+                renderSavedPalettes();
+                showToast("Nome aggiornato!");
+            }
+        }
+
+        function openConfirmActionModal(title, message, callback, confirmLabel = 'Conferma') {
+            document.getElementById('confirmActionTitle').innerText = title;
+            document.getElementById('confirmActionMessage').innerText = message;
+            document.getElementById('confirmActionButton').innerText = confirmLabel;
+            confirmActionCallback = callback;
+            const modal = document.getElementById('confirmActionModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeConfirmActionModal() {
+            const modal = document.getElementById('confirmActionModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            confirmActionCallback = null;
+        }
+
+        function executeConfirmAction() {
+            if (typeof confirmActionCallback === 'function') {
+                confirmActionCallback();
+            }
+            closeConfirmActionModal();
+        }
+
+        function openConfirmClearModal() {
+            if (state.savedPalettes.length === 0 && state.savedGarments.length === 0) {
+                showToast("Il guardaroba è già vuoto!");
+                return;
+            }
+            const modal = document.getElementById('confirmClearModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeConfirmClearModal() {
+            const modal = document.getElementById('confirmClearModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function confirmClearWardrobe() {
+            state.savedPalettes = [];
+            state.savedGarments = [];
+            saveSavedPalettesToStorage();
+            saveSavedGarmentsToStorage();
+            renderSavedPalettes();
+            closeConfirmClearModal();
+            showToast("Guardaroba svuotato");
+        }
+
+        function exportJsonPalettes() {
+            const hasPalettes = state.savedPalettes && state.savedPalettes.length > 0;
+            const hasGarments = state.savedGarments && state.savedGarments.length > 0;
+
+            if (!hasPalettes && !hasGarments) {
+                showToast("Nessun dato da esportare!");
+                return;
+            }
+
+            const exportData = {
+                palettes: state.savedPalettes,
+                garments: state.savedGarments
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const fileName = `guardaroba_sprezzato_${new Date().toISOString().slice(0, 10)}.json`;
+
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", fileName);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            showToast("Guardaroba scaricato!");
+        }
+
+        function openImportModal() {
+            document.getElementById('jsonFileInput').value = '';
+            document.getElementById('jsonPasteInput').value = '';
+            const modal = document.getElementById('importModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeImportModal() {
+            const modal = document.getElementById('importModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function processImport() {
+            const fileInput = document.getElementById('jsonFileInput');
+            const pasteInput = document.getElementById('jsonPasteInput').value.trim();
+            const mode = document.querySelector('input[name="importMode"]:checked').value;
+
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    applyImportedData(e.target.result, mode);
+                };
+                reader.readAsText(fileInput.files[0]);
+            } else if (pasteInput) {
+                applyImportedData(pasteInput, mode);
+            } else {
+                showToast("Seleziona un file o incolla un testo JSON!");
+            }
+        }
+
+        function applyImportedData(jsonString, mode) {
+            try {
+                const importedData = JSON.parse(jsonString);
+
+                let importedPalettes = [];
+                let importedGarments = [];
+
+                if (Array.isArray(importedData)) {
+                    // Formato legacy: solo un array di palette
+                    importedPalettes = importedData;
+                } else if (importedData && typeof importedData === 'object') {
+                    importedPalettes = Array.isArray(importedData.palettes) ? importedData.palettes : [];
+                    importedGarments = Array.isArray(importedData.garments) ? importedData.garments : [];
+                } else {
+                    throw new Error("Formato JSON non valido");
+                }
+
+                if (mode === 'replace') {
+                    state.savedPalettes = importedPalettes;
+                    state.savedGarments = importedGarments;
+                } else {
+                    importedPalettes.forEach(item => {
+                        if (item.palette && Array.isArray(item.palette)) {
+                            const exists = state.savedPalettes.some(p => p.id === item.id);
+                            if (!exists) {
+                                state.savedPalettes.unshift(item);
+                            }
+                        }
+                    });
+                    importedGarments.forEach(item => {
+                        if (item.hex && typeof item.layerIndex === 'number') {
+                            const exists = state.savedGarments.some(g => g.id === item.id);
+                            if (!exists) {
+                                state.savedGarments.unshift(item);
+                            }
+                        }
+                    });
+                }
+
+                saveSavedPalettesToStorage();
+                saveSavedGarmentsToStorage();
+                renderSavedPalettes();
+                closeImportModal();
+                showToast("Guardaroba importato con successo!");
+            } catch (err) {
+                showToast("Errore durante l'importazione JSON!");
+                console.error("Import error:", err);
+            }
+        }
+
+        function copyAllHex() {
+            const hexList = state.palette.map((p) => {
+                const hexVal = (p.isTwoTone && p.hex2) ? `${p.hex} / ${p.hex2}` : p.hex;
+                return `${p.layer}: ${hexVal} (${p.name})`;
+            }).join('\n');
+            copyToClipboard(hexList, 'HEX Palette copiata negli appunti!');
+        }
+
+        function copyToClipboard(text, successMsg = 'Copiato negli appunti!') {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                showToast('Errore di copiatura');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
