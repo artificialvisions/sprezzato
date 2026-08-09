@@ -213,16 +213,10 @@
                     <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
                         <i class="fa-solid fa-box-archive text-amber-500"></i> Il Tuo Guardaroba Palette
                     </h2>
-                    <p class="text-xs text-slate-400">Combinazioni e capi salvati sul dispositivo. Scarica o importa il guardaroba completo per trasferirlo su altri dispositivi.</p>
+                    <p class="text-xs text-slate-400">Combinazioni e capi salvati sul tuo account, sincronizzati automaticamente su tutti i dispositivi.</p>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap">
-                    <button onclick="exportJsonPalettes()" class="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold transition flex items-center gap-1.5" title="Scarica il file .json del tuo guardaroba">
-                        <i class="fa-solid fa-download"></i> Scarica Guardaroba
-                    </button>
-                    <button onclick="openImportModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5" title="Carica o incolla un file JSON">
-                        <i class="fa-solid fa-upload text-amber-400"></i> Importa Guardaroba
-                    </button>
-                    <button onclick="openConfirmClearModal()" class="text-xs text-slate-500 hover:text-red-400 transition flex items-center gap-1 ml-2">
+                    <button onclick="openConfirmClearModal()" class="text-xs text-slate-500 hover:text-red-400 transition flex items-center gap-1">
                         <i class="fa-solid fa-trash-can"></i> Svuota
                     </button>
                 </div>
@@ -301,57 +295,6 @@
         </div>
     </div>
 
-    <!-- Modal: Importa o Incolla JSON -->
-    <div id="importModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-file-import text-amber-500"></i> Importa Guardaroba
-                </h3>
-                <button onclick="closeImportModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <!-- Tab / Opzione 1: Carica File -->
-            <div class="space-y-2">
-                <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider">Opzione 1: Carica File JSON</label>
-                <div class="flex items-center gap-2">
-                    <input type="file" id="jsonFileInput" accept=".json" class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700">
-                </div>
-            </div>
-
-            <div class="relative flex py-1 items-center">
-                <div class="flex-grow border-t border-slate-800"></div>
-                <span class="flex-shrink mx-3 text-[10px] text-slate-500 uppercase font-mono">Oppure</span>
-                <div class="flex-grow border-t border-slate-800"></div>
-            </div>
-
-            <!-- Opzione 2: Incolla Testo JSON -->
-            <div class="space-y-2">
-                <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wider">Opzione 2: Incolla Testo JSON</label>
-                <textarea id="jsonPasteInput" rows="4" placeholder="Incolla qui il codice JSON del guardaroba copiato dal telefono o desktop..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500"></textarea>
-            </div>
-
-            <!-- Modalità Unisci o Sostituisci -->
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
-                <span class="block text-[11px] font-semibold text-slate-300">Modalità di caricamento:</span>
-                <div class="flex items-center gap-4 text-xs">
-                    <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                        <input type="radio" name="importMode" value="merge" checked class="accent-amber-500"> Unisci ai salvati
-                    </label>
-                    <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                        <input type="radio" name="importMode" value="replace" class="accent-amber-500"> Sostituisci tutto
-                    </label>
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeImportModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="processImport()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Conferma Importazione</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal: Rinomina Palette -->
     <div id="renameModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
@@ -379,7 +322,7 @@
     <div id="addGarmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                <h3 id="addGarmentModalTitle" class="font-serif-title text-base text-amber-200 flex items-center gap-2">
                     <i class="fa-solid fa-plus text-amber-500"></i> Aggiungi Capo al Guardaroba
                 </h3>
                 <button onclick="closeAddGarmentModal()" class="text-slate-400 hover:text-slate-100 text-sm">
@@ -405,7 +348,7 @@
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeAddGarmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="confirmAddGarment()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Aggiungi Capo</button>
+                <button id="addGarmentSubmitButton" onclick="confirmAddGarment()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Aggiungi Capo</button>
             </div>
         </div>
     </div>
@@ -477,7 +420,7 @@
             </div>
             <div>
                 <h3 class="font-serif-title text-base text-slate-100">Svuotare il guardaroba?</h3>
-                <p class="text-xs text-slate-400 mt-1">Questa azione cancellerà tutte le palette e i capi salvati sul dispositivo. Ti consigliamo di scaricare prima un backup del guardaroba.</p>
+                <p class="text-xs text-slate-400 mt-1">Questa azione cancellerà definitivamente tutte le palette e i capi salvati sul tuo account.</p>
             </div>
             <div class="flex justify-center gap-2 pt-2">
                 <button onclick="closeConfirmClearModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
@@ -519,6 +462,7 @@
         let confirmActionCallback = null;
         let pendingSaveGarmentLayerIndex = null;
         let pendingLoadGarmentLayerIndex = null;
+        let pendingEditGarmentId = null;
         let currentUser = null;
         let authMode = 'signin';
         let unsubscribePalettes = null;
@@ -1325,6 +1269,9 @@
         }
 
         function openAddGarmentModal() {
+            pendingEditGarmentId = null;
+            document.getElementById('addGarmentModalTitle').innerHTML = '<i class="fa-solid fa-plus text-amber-500"></i> Aggiungi Capo al Guardaroba';
+            document.getElementById('addGarmentSubmitButton').innerText = 'Aggiungi Capo';
             const select = document.getElementById('addGarmentLayerSelect');
             select.innerHTML = layerCatalogLabels.map((label, idx) => `<option value="${idx}">${label}</option>`).join('');
             document.getElementById('addGarmentColorInput').value = '#0A1128';
@@ -1334,13 +1281,31 @@
             modal.classList.remove('opacity-0', 'pointer-events-none');
         }
 
+        function openEditGarmentModal(id) {
+            const garment = state.savedGarments.find(g => g.id === id);
+            if (!garment) return;
+            pendingEditGarmentId = id;
+            document.getElementById('addGarmentModalTitle').innerHTML = '<i class="fa-solid fa-pen text-amber-500"></i> Modifica Capo';
+            document.getElementById('addGarmentSubmitButton').innerText = 'Salva Modifiche';
+            const select = document.getElementById('addGarmentLayerSelect');
+            select.innerHTML = layerCatalogLabels.map((label, idx) => `<option value="${idx}">${label}</option>`).join('');
+            select.value = garment.layerIndex;
+            document.getElementById('addGarmentColorInput').value = garment.hex;
+            document.getElementById('addGarmentColorHex').innerText = garment.hex;
+            document.getElementById('addGarmentNameInput').value = garment.name;
+            const modal = document.getElementById('addGarmentModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
         function closeAddGarmentModal() {
             const modal = document.getElementById('addGarmentModal');
             modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingEditGarmentId = null;
         }
 
         async function confirmAddGarment() {
             if (!currentUser) return;
+            const editId = pendingEditGarmentId;
             const layerIndex = parseInt(document.getElementById('addGarmentLayerSelect').value, 10);
             const layerLabel = layerCatalogLabels[layerIndex];
             const hex = document.getElementById('addGarmentColorInput').value.toUpperCase();
@@ -1357,20 +1322,26 @@
                 date: new Date().toLocaleDateString('it-IT')
             });
 
-            const existing = state.savedGarments.find(g => g.layerIndex === layerIndex && g.name.trim().toLowerCase() === name.toLowerCase());
+            const existing = state.savedGarments.find(g => g.id !== editId && g.layerIndex === layerIndex && g.name.trim().toLowerCase() === name.toLowerCase());
 
             if (existing) {
+                const collisionId = existing.id;
                 closeAddGarmentModal();
                 openConfirmActionModal(
                     'Sovrascrivere il capo?',
                     `Esiste già un capo chiamato "${name}" per ${layerLabel}. Vuoi sovrascriverlo?`,
                     async function () {
                         try {
-                            const { db, doc, updateDoc } = window.fb;
-                            await updateDoc(doc(db, 'users', currentUser.uid, 'garments', existing.id), buildGarmentData());
+                            const { db, doc, updateDoc, deleteDoc, addDoc, collection, serverTimestamp } = window.fb;
+                            await deleteDoc(doc(db, 'users', currentUser.uid, 'garments', collisionId));
+                            if (editId) {
+                                await updateDoc(doc(db, 'users', currentUser.uid, 'garments', editId), buildGarmentData());
+                            } else {
+                                await addDoc(collection(db, 'users', currentUser.uid, 'garments'), { ...buildGarmentData(), createdAt: serverTimestamp() });
+                            }
                             showToast("Capo sovrascritto nel guardaroba!");
                         } catch (err) {
-                            console.error('Add garment error:', err);
+                            console.error('Add/edit garment error:', err);
                             showToast("Errore nel salvataggio del capo");
                         }
                     },
@@ -1380,15 +1351,21 @@
             }
 
             try {
-                const { db, collection, addDoc, serverTimestamp } = window.fb;
-                await addDoc(collection(db, 'users', currentUser.uid, 'garments'), {
-                    ...buildGarmentData(),
-                    createdAt: serverTimestamp()
-                });
-                closeAddGarmentModal();
-                showToast("Capo aggiunto al guardaroba!");
+                const { db, doc, collection, addDoc, updateDoc, serverTimestamp } = window.fb;
+                if (editId) {
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'garments', editId), buildGarmentData());
+                    closeAddGarmentModal();
+                    showToast("Capo aggiornato!");
+                } else {
+                    await addDoc(collection(db, 'users', currentUser.uid, 'garments'), {
+                        ...buildGarmentData(),
+                        createdAt: serverTimestamp()
+                    });
+                    closeAddGarmentModal();
+                    showToast("Capo aggiunto al guardaroba!");
+                }
             } catch (err) {
-                console.error('Add garment error:', err);
+                console.error('Add/edit garment error:', err);
                 showToast("Errore nel salvataggio del capo");
             }
         }
@@ -1514,9 +1491,14 @@
                                 <div class="text-sm font-semibold text-slate-100 truncate">${g.name}</div>
                                 <div class="text-[11px] font-mono text-slate-500 truncate">${hexDisplay}</div>
                             </div>
-                            <button onclick="deleteGarment('${g.id}')" class="p-1 text-slate-500 hover:text-red-400 transition shrink-0" title="Elimina capo">
-                                <i class="fa-solid fa-trash text-xs"></i>
-                            </button>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="openEditGarmentModal('${g.id}')" class="p-1 text-slate-500 hover:text-amber-400 transition" title="Modifica capo">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteGarment('${g.id}')" class="p-1 text-slate-500 hover:text-red-400 transition" title="Elimina capo">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -1773,139 +1755,6 @@
             } catch (err) {
                 console.error('Clear wardrobe error:', err);
                 showToast("Errore nello svuotamento del guardaroba");
-            }
-        }
-
-        function exportJsonPalettes() {
-            const hasPalettes = state.savedPalettes && state.savedPalettes.length > 0;
-            const hasGarments = state.savedGarments && state.savedGarments.length > 0;
-
-            if (!hasPalettes && !hasGarments) {
-                showToast("Nessun dato da esportare!");
-                return;
-            }
-
-            const exportData = {
-                palettes: state.savedPalettes,
-                garments: state.savedGarments
-            };
-
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            const fileName = `guardaroba_sprezzato_${new Date().toISOString().slice(0, 10)}.json`;
-
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", fileName);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-
-            showToast("Guardaroba scaricato!");
-        }
-
-        function openImportModal() {
-            document.getElementById('jsonFileInput').value = '';
-            document.getElementById('jsonPasteInput').value = '';
-            const modal = document.getElementById('importModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        function closeImportModal() {
-            const modal = document.getElementById('importModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-        }
-
-        function processImport() {
-            const fileInput = document.getElementById('jsonFileInput');
-            const pasteInput = document.getElementById('jsonPasteInput').value.trim();
-            const mode = document.querySelector('input[name="importMode"]:checked').value;
-
-            if (fileInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    applyImportedData(e.target.result, mode);
-                };
-                reader.readAsText(fileInput.files[0]);
-            } else if (pasteInput) {
-                applyImportedData(pasteInput, mode);
-            } else {
-                showToast("Seleziona un file o incolla un testo JSON!");
-            }
-        }
-
-        async function applyImportedData(jsonString, mode) {
-            if (!currentUser) return;
-            try {
-                const importedData = JSON.parse(jsonString);
-
-                let importedPalettes = [];
-                let importedGarments = [];
-
-                if (Array.isArray(importedData)) {
-                    // Formato legacy: solo un array di palette
-                    importedPalettes = importedData;
-                } else if (importedData && typeof importedData === 'object') {
-                    importedPalettes = Array.isArray(importedData.palettes) ? importedData.palettes : [];
-                    importedGarments = Array.isArray(importedData.garments) ? importedData.garments : [];
-                } else {
-                    throw new Error("Formato JSON non valido");
-                }
-
-                const { db, doc, collection, getDocs, writeBatch, serverTimestamp } = window.fb;
-                const palettesRef = collection(db, 'users', currentUser.uid, 'palettes');
-                const garmentsRef = collection(db, 'users', currentUser.uid, 'garments');
-
-                if (mode === 'replace') {
-                    const existingPalettesSnap = await getDocs(palettesRef);
-                    const existingGarmentsSnap = await getDocs(garmentsRef);
-                    const deleteBatch = writeBatch(db);
-                    existingPalettesSnap.forEach(d => deleteBatch.delete(d.ref));
-                    existingGarmentsSnap.forEach(d => deleteBatch.delete(d.ref));
-                    await deleteBatch.commit();
-
-                    const addBatch = writeBatch(db);
-                    importedPalettes.forEach(item => {
-                        if (item.palette && Array.isArray(item.palette)) {
-                            const { id, ...rest } = item;
-                            addBatch.set(doc(palettesRef), { ...rest, createdAt: serverTimestamp() });
-                        }
-                    });
-                    importedGarments.forEach(item => {
-                        if (item.hex && typeof item.layerIndex === 'number') {
-                            const { id, ...rest } = item;
-                            addBatch.set(doc(garmentsRef), { ...rest, createdAt: serverTimestamp() });
-                        }
-                    });
-                    await addBatch.commit();
-                } else {
-                    // Modalità "Unisci": salta i duplicati per nome (gli id legacy non corrispondono agli id di Firestore)
-                    const addBatch = writeBatch(db);
-                    importedPalettes.forEach(item => {
-                        if (item.palette && Array.isArray(item.palette)) {
-                            const exists = state.savedPalettes.some(p => p.name.trim().toLowerCase() === (item.name || '').trim().toLowerCase());
-                            if (!exists) {
-                                const { id, ...rest } = item;
-                                addBatch.set(doc(palettesRef), { ...rest, createdAt: serverTimestamp() });
-                            }
-                        }
-                    });
-                    importedGarments.forEach(item => {
-                        if (item.hex && typeof item.layerIndex === 'number') {
-                            const exists = state.savedGarments.some(g => g.layerIndex === item.layerIndex && g.name.trim().toLowerCase() === (item.name || '').trim().toLowerCase());
-                            if (!exists) {
-                                const { id, ...rest } = item;
-                                addBatch.set(doc(garmentsRef), { ...rest, createdAt: serverTimestamp() });
-                            }
-                        }
-                    });
-                    await addBatch.commit();
-                }
-
-                closeImportModal();
-                showToast("Guardaroba importato con successo!");
-            } catch (err) {
-                showToast("Errore durante l'importazione JSON!");
-                console.error("Import error:", err);
             }
         }
 
