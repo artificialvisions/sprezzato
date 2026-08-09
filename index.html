@@ -183,12 +183,12 @@
                 </div>
             </div>
 
-            <!-- RIGHT: Sartorial 5-Layer Controls & Customizer -->
+            <!-- RIGHT: Sartorial 4-Layer Controls & Customizer -->
             <div class="lg:col-span-7 space-y-4">
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="font-serif-title text-lg text-amber-200">Abbinamento Spezzato</h2>
-                        <p class="text-xs text-slate-400">Personalizza i 5 livelli del tuo outfit sartoriale.</p>
+                        <p class="text-xs text-slate-400">Personalizza i 4 livelli del tuo outfit sartoriale.</p>
                     </div>
                     <button onclick="copyAllHex()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-copy"></i> Copia HEX Palette
@@ -470,7 +470,7 @@
             shoppingListItems: []
         };
 
-        const layerCatalogLabels = ['01. Pantalone', '02. Camicia', '03. Giacca', '04. Calze', '05. Scarpe & Accessori'];
+        const layerCatalogLabels = ['01. Pantalone', '02. Camicia', '03. Giacca', '04. Scarpe & Accessori'];
 
         let pendingRenameId = null;
         let confirmActionCallback = null;
@@ -703,8 +703,7 @@
             const [h, s, l] = hexToHsl(hex);
 
             if (layerIndex === 0) return 'Pantalone Base Sartoriale';
-            if (layerIndex === 3) return 'Calze Ton-sur-Ton';
-            if (layerIndex === 4) return 'Pelle Espresso / Cuoio';
+            if (layerIndex === 3) return 'Pelle Espresso / Cuoio';
 
             if (l < 15) return 'Dark Night';
             if (l > 88) return 'Soft Ivory / Bianco Lino';
@@ -746,45 +745,40 @@
 
             let p0 = state.baseColor;
             let p1_hex, p1_hex2, isTwoTone = false;
-            let p2_hex, p3_hex, p4_hex;
+            let p2_hex, p3_hex;
 
             if (state.harmonyMode === 'Riviera & Citrus') {
                 p1_hex = '#A9501C';
                 p1_hex2 = '#F3ECDE';
                 isTwoTone = true;
                 p2_hex = '#D4AF83';
-                p3_hex = p0;
-                p4_hex = '#3B2319';
+                p3_hex = '#3B2319';
             } else if (state.harmonyMode === 'Warm Autumn') {
                 p1_hex = '#FF7A2A';
                 p1_hex2 = '#FFFFFF';
                 isTwoTone = true;
                 p2_hex = '#8B5A2B';
-                p3_hex = p0;
-                p4_hex = '#23140F';
+                p3_hex = '#23140F';
             } else if (state.harmonyMode === 'Monocromatico') {
                 p1_hex = hslToHex(h, Math.max(10, s - 20), Math.min(85, l + 50));
                 p1_hex2 = '#FFFFFF';
                 isTwoTone = Math.random() > 0.5;
                 p2_hex = hslToHex(h, Math.max(10, s - 10), Math.min(70, l + 30));
-                p3_hex = p0;
-                p4_hex = hslToHex(h, 30, 15);
+                p3_hex = hslToHex(h, 30, 15);
             } else {
                 const compH = (h + 180) % 360;
                 p1_hex = hslToHex(compH, Math.min(75, s + 20), Math.min(75, Math.max(45, l + 20)));
                 p1_hex2 = '#F3ECDE';
                 isTwoTone = Math.random() > 0.4;
                 p2_hex = hslToHex((compH + 30) % 360, 25, 70);
-                p3_hex = p0;
-                p4_hex = '#3B2319';
+                p3_hex = '#3B2319';
             }
 
             state.palette = [
                 { layer: '01. Pantalone', hex: p0, note: 'Ancora neutra del guardaroba', name: generateSartorialName(p0, 0) },
                 { layer: '02. Camicia', hex: p1_hex, hex2: p1_hex2, isTwoTone: isTwoTone, note: 'Complementare o righe accentate', name: generateSartorialName(p1_hex, 1) },
                 { layer: '03. Giacca', hex: p2_hex, note: 'Tono desaturato per la giacca spezzata', name: generateSartorialName(p2_hex, 2) },
-                { layer: '04. Calze', hex: p3_hex, note: 'Raccordo tra pantalone e scarpa', name: generateSartorialName(p3_hex, 3) },
-                { layer: '05. Scarpe & Accessori', hex: p4_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p4_hex, 4) }
+                { layer: '04. Scarpe & Accessori', hex: p3_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p3_hex, 3) }
             ];
 
             document.getElementById('harmonyModeBadge').innerText = state.harmonyMode;
