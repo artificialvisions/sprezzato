@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// Sprezzato: ogni utente legge/scrive solo i propri dati,
+// salvati sotto users/{uid}/palettes e users/{uid}/garments.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/palettes/{paletteId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /users/{userId}/garments/{garmentId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

@@ -42,6 +42,52 @@
 </head>
 <body class="h-full flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
 
+    <!-- Auth Loading Overlay -->
+    <div id="authLoading" class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950">
+        <div class="flex flex-col items-center gap-3 text-amber-400">
+            <i class="fa-solid fa-shirt text-3xl animate-pulse"></i>
+            <span class="text-xs text-slate-400 font-mono">Verifica sessione...</span>
+        </div>
+    </div>
+
+    <!-- Auth Screen: Login / Registrazione -->
+    <div id="authScreen" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-950 p-4">
+        <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-2xl">
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold text-xl">
+                    <i class="fa-solid fa-shirt"></i>
+                </div>
+                <h1 class="font-cinzel font-bold text-lg tracking-wider text-amber-100 uppercase pt-2">Sprezzato</h1>
+                <p id="authSubtitle" class="text-xs text-slate-400">Accedi al tuo guardaroba personale</p>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Email</label>
+                    <input type="email" id="authEmailInput" placeholder="tuo@indirizzo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input type="password" id="authPasswordInput" placeholder="••••••••" onkeydown="if(event.key === 'Enter') submitAuthForm()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+
+            <p id="authErrorMessage" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2"></p>
+
+            <div class="space-y-2">
+                <button id="authSubmitButton" onclick="submitAuthForm()" class="w-full px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-semibold shadow-md transition">
+                    Accedi
+                </button>
+                <button onclick="toggleAuthMode()" class="w-full text-xs text-slate-400 hover:text-amber-400 transition py-1">
+                    <span id="authToggleText">Non hai un account? Registrati</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Shell: visibile solo da autenticati -->
+    <div id="appShell" class="hidden flex-1 flex flex-col">
+
     <!-- Header -->
     <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -69,6 +115,12 @@
                     <i class="fa-solid fa-bookmark text-amber-400"></i>
                     <span class="hidden sm:inline">Salva Palette</span>
                 </button>
+                <div class="flex items-center gap-2 pl-2 ml-1 border-l border-slate-700">
+                    <span id="userEmailLabel" class="text-[11px] text-slate-400 font-mono hidden sm:inline max-w-[140px] truncate"></span>
+                    <button onclick="logoutUser()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs" title="Esci">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -365,6 +417,9 @@
         <p>SPREZZATO &bull; L'Arte dello Spezzato Sartoriale Maschile</p>
     </footer>
 
+    </div>
+    <!-- /App Shell -->
+
     <!-- Toast Notification UI -->
     <div id="toastNotification" class="fixed bottom-5 right-5 px-4 py-3 rounded-xl bg-amber-500 text-slate-950 font-semibold text-xs shadow-xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
         <i class="fa-solid fa-circle-check"></i>
@@ -387,6 +442,10 @@
         let confirmActionCallback = null;
         let pendingSaveGarmentLayerIndex = null;
         let pendingLoadGarmentLayerIndex = null;
+        let currentUser = null;
+        let authMode = 'signin';
+        let unsubscribePalettes = null;
+        let unsubscribeGarments = null;
 
         // Sartorial Color Names Dictionary
         const sartorialColorNames = {
@@ -413,10 +472,138 @@
 
         // Initialize Application
         window.onload = function () {
-            loadSavedPalettesFromStorage();
-            loadSavedGarmentsFromStorage();
             generateHarmony(true);
         };
+
+        // ---- Autenticazione (Firebase) ----
+
+        const authErrorMessages = {
+            'auth/invalid-email': 'Indirizzo email non valido.',
+            'auth/user-disabled': 'Questo account è stato disabilitato.',
+            'auth/user-not-found': 'Nessun account trovato con questa email.',
+            'auth/wrong-password': 'Password errata.',
+            'auth/invalid-credential': 'Email o password errati.',
+            'auth/email-already-in-use': 'Esiste già un account con questa email.',
+            'auth/weak-password': 'La password deve avere almeno 6 caratteri.',
+            'auth/missing-password': 'Inserisci una password.'
+        };
+
+        function toggleAuthMode() {
+            authMode = authMode === 'signin' ? 'signup' : 'signin';
+            updateAuthScreenLabels();
+        }
+
+        function updateAuthScreenLabels() {
+            const submitBtn = document.getElementById('authSubmitButton');
+            const toggleText = document.getElementById('authToggleText');
+            const subtitle = document.getElementById('authSubtitle');
+            if (authMode === 'signin') {
+                submitBtn.innerText = 'Accedi';
+                toggleText.innerText = 'Non hai un account? Registrati';
+                subtitle.innerText = 'Accedi al tuo guardaroba personale';
+            } else {
+                submitBtn.innerText = 'Registrati';
+                toggleText.innerText = 'Hai già un account? Accedi';
+                subtitle.innerText = 'Crea il tuo account personale';
+            }
+            hideAuthError();
+        }
+
+        function showAuthError(message) {
+            const el = document.getElementById('authErrorMessage');
+            el.innerText = message;
+            el.classList.remove('hidden');
+        }
+
+        function hideAuthError() {
+            document.getElementById('authErrorMessage').classList.add('hidden');
+        }
+
+        async function submitAuthForm() {
+            const email = document.getElementById('authEmailInput').value.trim();
+            const password = document.getElementById('authPasswordInput').value;
+            hideAuthError();
+
+            if (!email || !password) {
+                showAuthError('Inserisci email e password.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('authSubmitButton');
+            const wasSignup = authMode === 'signup';
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Attendere...';
+
+            try {
+                const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.fb;
+                if (wasSignup) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+                // Il resto (chiusura schermata, caricamento dati) è gestito da handleAuthStateChange
+            } catch (err) {
+                console.error('Auth error:', err);
+                showAuthError(authErrorMessages[err.code] || 'Si è verificato un errore. Riprova.');
+                submitBtn.disabled = false;
+                submitBtn.innerText = wasSignup ? 'Registrati' : 'Accedi';
+            }
+        }
+
+        function logoutUser() {
+            const { auth, signOut } = window.fb;
+            signOut(auth);
+        }
+
+        function handleAuthStateChange(user) {
+            document.getElementById('authLoading').classList.add('hidden');
+            currentUser = user;
+
+            if (unsubscribePalettes) { unsubscribePalettes(); unsubscribePalettes = null; }
+            if (unsubscribeGarments) { unsubscribeGarments(); unsubscribeGarments = null; }
+
+            if (user) {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appShell').classList.remove('hidden');
+                document.getElementById('userEmailLabel').innerText = user.email;
+                document.getElementById('authEmailInput').value = '';
+                document.getElementById('authPasswordInput').value = '';
+                const submitBtn = document.getElementById('authSubmitButton');
+                submitBtn.disabled = false;
+                authMode = 'signin';
+                updateAuthScreenLabels();
+                attachFirestoreListeners(user.uid);
+            } else {
+                document.getElementById('appShell').classList.add('hidden');
+                document.getElementById('authScreen').classList.remove('hidden');
+                state.savedPalettes = [];
+                state.savedGarments = [];
+            }
+        }
+
+        function attachFirestoreListeners(uid) {
+            const { db, collection, query, orderBy, onSnapshot } = window.fb;
+
+            const palettesQuery = query(collection(db, 'users', uid, 'palettes'), orderBy('createdAt', 'desc'));
+            unsubscribePalettes = onSnapshot(palettesQuery, (snapshot) => {
+                state.savedPalettes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderSavedPalettes();
+            }, (err) => {
+                console.error('Palettes sync error:', err);
+                showToast("Errore di sincronizzazione palette");
+            });
+
+            const garmentsQuery = query(collection(db, 'users', uid, 'garments'), orderBy('createdAt', 'desc'));
+            unsubscribeGarments = onSnapshot(garmentsQuery, (snapshot) => {
+                state.savedGarments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                if (pendingLoadGarmentLayerIndex !== null) {
+                    renderLoadGarmentList();
+                }
+            }, (err) => {
+                console.error('Garments sync error:', err);
+                showToast("Errore di sincronizzazione capi");
+            });
+        }
 
         function hexToHsl(hex) {
             hex = hex.replace('#', '');
@@ -730,7 +917,8 @@
             modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
-        function confirmSavePalette() {
+        async function confirmSavePalette() {
+            if (!currentUser) return;
             const nameInput = document.getElementById('paletteNameInput').value.trim();
             const name = nameInput || `${state.palette[0].name} & ${state.palette[1].name}`;
 
@@ -741,53 +929,42 @@
                 openConfirmActionModal(
                     'Sovrascrivere la palette?',
                     `Esiste già una palette chiamata "${name}" nel guardaroba. Vuoi sovrascriverla con questa nuova combinazione?`,
-                    function () {
-                        existing.date = new Date().toLocaleDateString('it-IT');
-                        existing.baseHex = state.baseColor;
-                        existing.harmonyMode = state.harmonyMode;
-                        existing.palette = JSON.parse(JSON.stringify(state.palette));
-                        saveSavedPalettesToStorage();
-                        renderSavedPalettes();
-                        showToast("Palette sovrascritta nel guardaroba!");
+                    async function () {
+                        try {
+                            const { db, doc, updateDoc } = window.fb;
+                            await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', existing.id), {
+                                name: name,
+                                date: new Date().toLocaleDateString('it-IT'),
+                                baseHex: state.baseColor,
+                                harmonyMode: state.harmonyMode,
+                                palette: JSON.parse(JSON.stringify(state.palette))
+                            });
+                            showToast("Palette sovrascritta nel guardaroba!");
+                        } catch (err) {
+                            console.error('Save palette error:', err);
+                            showToast("Errore nel salvataggio della palette");
+                        }
                     },
                     'Sovrascrivi'
                 );
                 return;
             }
 
-            const savedItem = {
-                id: Date.now().toString(),
-                name: name,
-                date: new Date().toLocaleDateString('it-IT'),
-                baseHex: state.baseColor,
-                harmonyMode: state.harmonyMode,
-                palette: JSON.parse(JSON.stringify(state.palette))
-            };
-
-            state.savedPalettes.unshift(savedItem);
-            saveSavedPalettesToStorage();
-            renderSavedPalettes();
-            closeSaveModal();
-            showToast("Palette salvata nel guardaroba!");
-        }
-
-        function loadSavedPalettesFromStorage() {
             try {
-                const stored = localStorage.getItem('sartorial_saved_palettes');
-                if (stored) {
-                    state.savedPalettes = JSON.parse(stored);
-                }
-            } catch (e) {
-                state.savedPalettes = [];
-            }
-            renderSavedPalettes();
-        }
-
-        function saveSavedPalettesToStorage() {
-            try {
-                localStorage.setItem('sartorial_saved_palettes', JSON.stringify(state.savedPalettes));
-            } catch (e) {
-                console.warn("Storage exception", e);
+                const { db, collection, addDoc, serverTimestamp } = window.fb;
+                await addDoc(collection(db, 'users', currentUser.uid, 'palettes'), {
+                    name: name,
+                    date: new Date().toLocaleDateString('it-IT'),
+                    baseHex: state.baseColor,
+                    harmonyMode: state.harmonyMode,
+                    palette: JSON.parse(JSON.stringify(state.palette)),
+                    createdAt: serverTimestamp()
+                });
+                closeSaveModal();
+                showToast("Palette salvata nel guardaroba!");
+            } catch (err) {
+                console.error('Save palette error:', err);
+                showToast("Errore nel salvataggio della palette");
             }
         }
 
@@ -897,25 +1074,6 @@
             document.getElementById('loadedPaletteBanner').classList.add('hidden');
         }
 
-        function loadSavedGarmentsFromStorage() {
-            try {
-                const stored = localStorage.getItem('sartorial_saved_garments');
-                if (stored) {
-                    state.savedGarments = JSON.parse(stored);
-                }
-            } catch (e) {
-                state.savedGarments = [];
-            }
-        }
-
-        function saveSavedGarmentsToStorage() {
-            try {
-                localStorage.setItem('sartorial_saved_garments', JSON.stringify(state.savedGarments));
-            } catch (e) {
-                console.warn("Storage exception", e);
-            }
-        }
-
         function openSaveGarmentModal(layerIndex) {
             pendingSaveGarmentLayerIndex = layerIndex;
             const layerItem = state.palette[layerIndex];
@@ -931,15 +1089,15 @@
             pendingSaveGarmentLayerIndex = null;
         }
 
-        function confirmSaveGarment() {
+        async function confirmSaveGarment() {
+            if (!currentUser) return;
             const layerIndex = pendingSaveGarmentLayerIndex;
             if (layerIndex === null) return;
             const layerItem = state.palette[layerIndex];
             const nameInput = document.getElementById('garmentNameInput').value.trim();
             const name = nameInput || layerItem.name;
 
-            const buildGarment = (id) => ({
-                id: id,
+            const buildGarmentData = () => ({
                 layerIndex: layerIndex,
                 layerLabel: layerItem.layer,
                 name: name,
@@ -956,20 +1114,33 @@
                 openConfirmActionModal(
                     'Sovrascrivere il capo?',
                     `Esiste già un capo chiamato "${name}" per ${layerItem.layer}. Vuoi sovrascriverlo?`,
-                    function () {
-                        Object.assign(existing, buildGarment(existing.id));
-                        saveSavedGarmentsToStorage();
-                        showToast("Capo sovrascritto nel guardaroba!");
+                    async function () {
+                        try {
+                            const { db, doc, updateDoc } = window.fb;
+                            await updateDoc(doc(db, 'users', currentUser.uid, 'garments', existing.id), buildGarmentData());
+                            showToast("Capo sovrascritto nel guardaroba!");
+                        } catch (err) {
+                            console.error('Save garment error:', err);
+                            showToast("Errore nel salvataggio del capo");
+                        }
                     },
                     'Sovrascrivi'
                 );
                 return;
             }
 
-            state.savedGarments.unshift(buildGarment(Date.now().toString()));
-            saveSavedGarmentsToStorage();
-            closeSaveGarmentModal();
-            showToast("Capo salvato nel guardaroba!");
+            try {
+                const { db, collection, addDoc, serverTimestamp } = window.fb;
+                await addDoc(collection(db, 'users', currentUser.uid, 'garments'), {
+                    ...buildGarmentData(),
+                    createdAt: serverTimestamp()
+                });
+                closeSaveGarmentModal();
+                showToast("Capo salvato nel guardaroba!");
+            } catch (err) {
+                console.error('Save garment error:', err);
+                showToast("Errore nel salvataggio del capo");
+            }
         }
 
         function openLoadGarmentModal(layerIndex) {
@@ -1041,15 +1212,19 @@
 
         function deleteGarment(id) {
             const garment = state.savedGarments.find(g => g.id === id);
-            if (!garment) return;
+            if (!garment || !currentUser) return;
             openConfirmActionModal(
                 'Eliminare il capo?',
                 `Stai per eliminare "${garment.name}" dal guardaroba capi.`,
-                function () {
-                    state.savedGarments = state.savedGarments.filter(g => g.id !== id);
-                    saveSavedGarmentsToStorage();
-                    renderLoadGarmentList();
-                    showToast("Capo eliminato dal guardaroba");
+                async function () {
+                    try {
+                        const { db, doc, deleteDoc } = window.fb;
+                        await deleteDoc(doc(db, 'users', currentUser.uid, 'garments', id));
+                        showToast("Capo eliminato dal guardaroba");
+                    } catch (err) {
+                        console.error('Delete garment error:', err);
+                        showToast("Errore nell'eliminazione del capo");
+                    }
                 },
                 'Elimina'
             );
@@ -1057,15 +1232,19 @@
 
         function openDeletePaletteConfirm(id) {
             const item = state.savedPalettes.find(p => p.id === id);
-            if (!item) return;
+            if (!item || !currentUser) return;
             openConfirmActionModal(
                 'Eliminare la palette?',
                 `Stai per eliminare "${item.name}" dal guardaroba. L'operazione non è reversibile.`,
-                function () {
-                    state.savedPalettes = state.savedPalettes.filter(p => p.id !== id);
-                    saveSavedPalettesToStorage();
-                    renderSavedPalettes();
-                    showToast("Palette rimossa dal guardaroba");
+                async function () {
+                    try {
+                        const { db, doc, deleteDoc } = window.fb;
+                        await deleteDoc(doc(db, 'users', currentUser.uid, 'palettes', id));
+                        showToast("Palette rimossa dal guardaroba");
+                    } catch (err) {
+                        console.error('Delete palette error:', err);
+                        showToast("Errore nell'eliminazione della palette");
+                    }
                 },
                 'Elimina'
             );
@@ -1087,6 +1266,7 @@
         }
 
         function confirmRenamePalette() {
+            if (!currentUser) return;
             const newName = document.getElementById('renameNameInput').value.trim();
             if (!newName) {
                 showToast("Inserisci un nome valido");
@@ -1102,26 +1282,32 @@
             const renameId = pendingRenameId;
             closeRenameModal();
 
+            const { db, doc, updateDoc, deleteDoc } = window.fb;
+
             if (collision) {
                 const collisionId = collision.id;
                 openConfirmActionModal(
                     'Sovrascrivere la palette?',
                     `Esiste già una palette chiamata "${newName}". Rinominando, quella esistente verrà sovrascritta con questa combinazione.`,
-                    function () {
-                        state.savedPalettes = state.savedPalettes.filter(p => p.id !== collisionId);
-                        const item = state.savedPalettes.find(p => p.id === renameId);
-                        if (item) item.name = newName;
-                        saveSavedPalettesToStorage();
-                        renderSavedPalettes();
-                        showToast("Palette rinominata e sovrascritta!");
+                    async function () {
+                        try {
+                            await deleteDoc(doc(db, 'users', currentUser.uid, 'palettes', collisionId));
+                            await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', renameId), { name: newName });
+                            showToast("Palette rinominata e sovrascritta!");
+                        } catch (err) {
+                            console.error('Rename palette error:', err);
+                            showToast("Errore nella rinomina della palette");
+                        }
                     },
                     'Sovrascrivi'
                 );
             } else {
-                currentItem.name = newName;
-                saveSavedPalettesToStorage();
-                renderSavedPalettes();
-                showToast("Nome aggiornato!");
+                updateDoc(doc(db, 'users', currentUser.uid, 'palettes', renameId), { name: newName })
+                    .then(() => showToast("Nome aggiornato!"))
+                    .catch((err) => {
+                        console.error('Rename palette error:', err);
+                        showToast("Errore nella rinomina della palette");
+                    });
             }
         }
 
@@ -1161,14 +1347,22 @@
             modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
-        function confirmClearWardrobe() {
-            state.savedPalettes = [];
-            state.savedGarments = [];
-            saveSavedPalettesToStorage();
-            saveSavedGarmentsToStorage();
-            renderSavedPalettes();
-            closeConfirmClearModal();
-            showToast("Guardaroba svuotato");
+        async function confirmClearWardrobe() {
+            if (!currentUser) return;
+            try {
+                const { db, collection, getDocs, writeBatch } = window.fb;
+                const palettesSnap = await getDocs(collection(db, 'users', currentUser.uid, 'palettes'));
+                const garmentsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'garments'));
+                const batch = writeBatch(db);
+                palettesSnap.forEach(d => batch.delete(d.ref));
+                garmentsSnap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                closeConfirmClearModal();
+                showToast("Guardaroba svuotato");
+            } catch (err) {
+                console.error('Clear wardrobe error:', err);
+                showToast("Errore nello svuotamento del guardaroba");
+            }
         }
 
         function exportJsonPalettes() {
@@ -1228,7 +1422,8 @@
             }
         }
 
-        function applyImportedData(jsonString, mode) {
+        async function applyImportedData(jsonString, mode) {
+            if (!currentUser) return;
             try {
                 const importedData = JSON.parse(jsonString);
 
@@ -1245,31 +1440,56 @@
                     throw new Error("Formato JSON non valido");
                 }
 
+                const { db, doc, collection, getDocs, writeBatch, serverTimestamp } = window.fb;
+                const palettesRef = collection(db, 'users', currentUser.uid, 'palettes');
+                const garmentsRef = collection(db, 'users', currentUser.uid, 'garments');
+
                 if (mode === 'replace') {
-                    state.savedPalettes = importedPalettes;
-                    state.savedGarments = importedGarments;
-                } else {
+                    const existingPalettesSnap = await getDocs(palettesRef);
+                    const existingGarmentsSnap = await getDocs(garmentsRef);
+                    const deleteBatch = writeBatch(db);
+                    existingPalettesSnap.forEach(d => deleteBatch.delete(d.ref));
+                    existingGarmentsSnap.forEach(d => deleteBatch.delete(d.ref));
+                    await deleteBatch.commit();
+
+                    const addBatch = writeBatch(db);
                     importedPalettes.forEach(item => {
                         if (item.palette && Array.isArray(item.palette)) {
-                            const exists = state.savedPalettes.some(p => p.id === item.id);
+                            const { id, ...rest } = item;
+                            addBatch.set(doc(palettesRef), { ...rest, createdAt: serverTimestamp() });
+                        }
+                    });
+                    importedGarments.forEach(item => {
+                        if (item.hex && typeof item.layerIndex === 'number') {
+                            const { id, ...rest } = item;
+                            addBatch.set(doc(garmentsRef), { ...rest, createdAt: serverTimestamp() });
+                        }
+                    });
+                    await addBatch.commit();
+                } else {
+                    // Modalità "Unisci": salta i duplicati per nome (gli id legacy non corrispondono agli id di Firestore)
+                    const addBatch = writeBatch(db);
+                    importedPalettes.forEach(item => {
+                        if (item.palette && Array.isArray(item.palette)) {
+                            const exists = state.savedPalettes.some(p => p.name.trim().toLowerCase() === (item.name || '').trim().toLowerCase());
                             if (!exists) {
-                                state.savedPalettes.unshift(item);
+                                const { id, ...rest } = item;
+                                addBatch.set(doc(palettesRef), { ...rest, createdAt: serverTimestamp() });
                             }
                         }
                     });
                     importedGarments.forEach(item => {
                         if (item.hex && typeof item.layerIndex === 'number') {
-                            const exists = state.savedGarments.some(g => g.id === item.id);
+                            const exists = state.savedGarments.some(g => g.layerIndex === item.layerIndex && g.name.trim().toLowerCase() === (item.name || '').trim().toLowerCase());
                             if (!exists) {
-                                state.savedGarments.unshift(item);
+                                const { id, ...rest } = item;
+                                addBatch.set(doc(garmentsRef), { ...rest, createdAt: serverTimestamp() });
                             }
                         }
                     });
+                    await addBatch.commit();
                 }
 
-                saveSavedPalettesToStorage();
-                saveSavedGarmentsToStorage();
-                renderSavedPalettes();
                 closeImportModal();
                 showToast("Guardaroba importato con successo!");
             } catch (err) {
@@ -1312,6 +1532,44 @@
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 2500);
         }
+    </script>
+
+    <!-- Firebase: auth + sync del guardaroba -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import {
+            getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+            signInWithEmailAndPassword, signOut
+        } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import {
+            getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+            onSnapshot, query, orderBy, writeBatch, getDocs, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhhsalo2fxy2vMqj_ACT3-4B_IsZNJFvg",
+            authDomain: "sprezzato-14688.firebaseapp.com",
+            projectId: "sprezzato-14688",
+            storageBucket: "sprezzato-14688.firebasestorage.app",
+            messagingSenderId: "995216589288",
+            appId: "1:995216589288:web:474227b717fb01a019e45d"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+
+        window.fb = {
+            auth, db,
+            onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+            collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch, getDocs, serverTimestamp
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (typeof window.handleAuthStateChange === 'function') {
+                window.handleAuthStateChange(user);
+            }
+        });
     </script>
 </body>
 </html>
