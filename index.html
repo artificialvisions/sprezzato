@@ -975,7 +975,7 @@
                 layerCard.innerHTML = `
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-xl border border-white/20 shadow-md flex items-center justify-center font-bold text-xs shrink-0" style="${swatchStyle}">
+                            <div id="layerSwatch-${idx}" class="w-10 h-10 rounded-xl border border-white/20 shadow-md flex items-center justify-center font-bold text-xs shrink-0" style="${swatchStyle}">
                                 <span class="bg-black/30 text-white px-1.5 py-0.5 rounded text-[10px]">0${idx + 1}</span>
                             </div>
                             <div class="min-w-0">
@@ -986,13 +986,13 @@
                                             ${isTwoTone ? '2 Colori (Righe)' : 'Tinta Unita'}
                                         </button>
                                     ` : ''}
-                                    ${!isLayerOwned(idx, item) ? `
+                                    <span id="layerOwnBadge-${idx}">${!isLayerOwned(idx, item) ? `
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1">
                                             <i class="fa-solid fa-cart-shopping"></i> Da acquistare
                                         </span>
-                                    ` : ''}
+                                    ` : ''}</span>
                                 </div>
-                                <div class="font-semibold text-sm text-slate-100 truncate">${item.name}</div>
+                                <div id="layerName-${idx}" class="font-semibold text-sm text-slate-100 truncate">${item.name}</div>
                                 <div class="text-[11px] text-slate-400 truncate">${item.note}</div>
                             </div>
                         </div>
@@ -1026,13 +1026,43 @@
                             </button>
                         </div>
 
-                        <div class="font-mono text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+                        <div id="layerHexDisplay-${idx}" class="font-mono text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
                             ${hexDisplay}
                         </div>
                     </div>
                 `;
                 container.appendChild(layerCard);
             });
+        }
+
+        function patchLayerCard(idx) {
+            const item = state.palette[idx];
+            if (!item) return;
+            const isTwoTone = !!item.isTwoTone;
+
+            const swatch = document.getElementById(`layerSwatch-${idx}`);
+            if (swatch) {
+                swatch.style.cssText = (isTwoTone && item.hex2)
+                    ? `background: linear-gradient(135deg, ${item.hex} 50%, ${item.hex2} 50%)`
+                    : `background-color: ${item.hex}`;
+            }
+
+            const hexDisplay = document.getElementById(`layerHexDisplay-${idx}`);
+            if (hexDisplay) {
+                hexDisplay.innerText = (isTwoTone && item.hex2) ? `${item.hex} / ${item.hex2}` : item.hex;
+            }
+
+            const nameEl = document.getElementById(`layerName-${idx}`);
+            if (nameEl) nameEl.innerText = item.name;
+
+            const badgeWrap = document.getElementById(`layerOwnBadge-${idx}`);
+            if (badgeWrap) {
+                badgeWrap.innerHTML = !isLayerOwned(idx, item) ? `
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1">
+                        <i class="fa-solid fa-cart-shopping"></i> Da acquistare
+                    </span>
+                ` : '';
+            }
         }
 
         function toggleTwoTone(index) {
@@ -1054,7 +1084,7 @@
             }
             state.palette[index].name = generateSartorialName(state.palette[index].hex, index);
             renderMoodboard();
-            renderSartorialLayers();
+            patchLayerCard(index);
         }
 
         function randomizeLayer(index) {
