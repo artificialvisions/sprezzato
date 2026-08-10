@@ -489,6 +489,11 @@
                 <i class="fa-solid fa-layer-group text-sm"></i>
                 <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Palette <span id="paletteCountBadge" class="tab-badge"></span></span>
             </button>
+            <button onclick="switchTab('collections')" data-tab="collections" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-folder text-sm"></i>
+                <span class="text-[11px] sm:hidden font-semibold">Collez.</span>
+                <span class="hidden sm:flex items-center gap-1.5 text-sm font-semibold">Collezioni <span id="collectionCountBadge" class="tab-badge"></span></span>
+            </button>
             <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
                 <i class="fa-solid fa-vest text-sm"></i>
                 <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Capi <span id="garmentCountBadge" class="tab-badge"></span></span>
@@ -578,6 +583,25 @@
                 </div>
 
                 <div id="savedPalettesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+                    <!-- Generate via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ COLLEZIONI ============ -->
+        <div id="panel-collections" class="tab-panel hidden">
+            <div class="panel-enter">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                    <div>
+                        <span class="eyebrow">Organizza</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">Le tue collezioni</h2>
+                    </div>
+                    <button onclick="openCreateCollectionModal()" class="btn btn-primary px-4 py-2 text-xs self-start sm:self-auto">
+                        <i class="fa-solid fa-plus text-[11px]"></i> Nuova collezione
+                    </button>
+                </div>
+
+                <div id="collectionsListContainer" class="space-y-4">
                     <!-- Generate via JS -->
                 </div>
             </div>
@@ -679,6 +703,61 @@
 
             <div id="collectionPickerList" class="space-y-1.5 max-h-56 overflow-y-auto -mx-1 px-1">
                 <!-- Generate via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nuova Collezione (dalla tab Collezioni) -->
+    <div id="createCollectionModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg text-navy">Nuova collezione</h3>
+                <button onclick="closeCreateCollectionModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="rule-brass"></div>
+            <div>
+                <label class="eyebrow block mb-1.5">Nome</label>
+                <input type="text" id="createCollectionNameInput" placeholder="es. Estate" onkeydown="if(event.key==='Enter') confirmCreateCollection()" class="field">
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeCreateCollectionModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmCreateCollection()" class="btn btn-primary px-4 py-2 text-xs">Crea</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Rinomina Collezione -->
+    <div id="renameCollectionModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg text-navy">Rinomina collezione</h3>
+                <button onclick="closeRenameCollectionModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="rule-brass"></div>
+            <div>
+                <label class="eyebrow block mb-1.5">Nome</label>
+                <input type="text" id="renameCollectionNameInput" placeholder="es. Estate" onkeydown="if(event.key==='Enter') confirmRenameCollection()" class="field">
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeRenameCollectionModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmRenameCollection()" class="btn btn-primary px-4 py-2 text-xs">Salva nome</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Aggiungi Palette a Collezione -->
+    <div id="addPalettesModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <h3 class="font-display text-lg text-navy truncate">Aggiungi a <span id="addPalettesCollectionName" class="text-muted text-base"></span></h3>
+                <button onclick="closeAddPalettesModal()" class="btn btn-quiet w-8 h-8 rounded-lg shrink-0" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="rule-brass"></div>
+            <div id="addPalettesList" class="space-y-2 max-h-80 overflow-y-auto -mx-1 px-1">
+                <!-- Generate via JS -->
+            </div>
+            <div class="flex justify-end pt-1">
+                <button onclick="closeAddPalettesModal()" class="btn btn-primary px-4 py-2 text-xs">Fatto</button>
             </div>
         </div>
     </div>
@@ -838,6 +917,8 @@
         let pendingEditGarmentId = null;
         let pendingRenameShoppingKey = null;
         let pendingCollectionPaletteId = null;
+        let pendingRenameCollectionId = null;
+        let pendingAddToCollectionId = null;
         let currentUser = null;
         let authMode = 'signin';
         let unsubscribePalettes = null;
@@ -1034,7 +1115,7 @@
         }
 
         function switchTab(tab) {
-            ['builder', 'palettes', 'garments', 'shopping'].forEach(t => {
+            ['builder', 'palettes', 'collections', 'garments', 'shopping'].forEach(t => {
                 const panel = document.getElementById('panel-' + t);
                 if (!panel) return;
                 const isActive = t === tab;
@@ -1060,9 +1141,11 @@
             const paletteBadge = document.getElementById('paletteCountBadge');
             const garmentBadge = document.getElementById('garmentCountBadge');
             const shoppingBadge = document.getElementById('shoppingCountBadge');
+            const collectionBadge = document.getElementById('collectionCountBadge');
             if (paletteBadge) paletteBadge.innerText = state.savedPalettes.length || '';
             if (garmentBadge) garmentBadge.innerText = state.savedGarments.length || '';
             if (shoppingBadge) shoppingBadge.innerText = (state.shoppingListItems || []).length || '';
+            if (collectionBadge) collectionBadge.innerText = state.collections.length || '';
         }
 
         function attachFirestoreListeners(uid) {
@@ -1075,6 +1158,7 @@
                 state.savedPalettes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderSavedPalettes();
                 renderShoppingList();
+                renderCollectionsTab();
             }, (err) => {
                 console.error('Palettes sync error:', err);
                 showToast("Errore di sincronizzazione palette");
@@ -1113,10 +1197,12 @@
                 state.collections = snapshot.docs
                     .map(d => ({ id: d.id, ...d.data() }))
                     .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it', { sensitivity: 'base' }));
-                if (state.collectionFilter && !state.collections.some(c => c.id === state.collectionFilter)) {
+                if (state.collectionFilter && state.collectionFilter !== 'none' && !state.collections.some(c => c.id === state.collectionFilter)) {
                     state.collectionFilter = null;
                 }
                 renderSavedPalettes();
+                renderCollectionsTab();
+                updateTabBadges();
             }, (err) => {
                 console.error('Collections sync error:', err);
             });
@@ -2445,6 +2531,7 @@
                         await batch.commit();
                         if (state.collectionFilter === id) state.collectionFilter = null;
                         renderCollectionPickerList();
+                        renderCollectionsTab();
                         showToast("Collezione eliminata");
                     } catch (err) {
                         console.error('Delete collection error:', err);
@@ -2453,6 +2540,213 @@
                 },
                 'Elimina'
             );
+        }
+
+        function openCreateCollectionModal() {
+            document.getElementById('createCollectionNameInput').value = '';
+            const modal = document.getElementById('createCollectionModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeCreateCollectionModal() {
+            const modal = document.getElementById('createCollectionModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        async function confirmCreateCollection() {
+            const name = document.getElementById('createCollectionNameInput').value.trim();
+            if (!name || !currentUser) return;
+
+            const existing = state.collections.find(c => c.name.trim().toLowerCase() === name.toLowerCase());
+            if (existing) {
+                showToast(`Esiste già una collezione "${name}"`);
+                return;
+            }
+
+            try {
+                const { db, collection, addDoc, serverTimestamp } = window.fb;
+                await addDoc(collection(db, 'users', currentUser.uid, 'collections'), {
+                    name: name,
+                    createdAt: serverTimestamp()
+                });
+                closeCreateCollectionModal();
+                showToast(`Collezione "${name}" creata`);
+            } catch (err) {
+                console.error('Create collection error:', err);
+                showToast("Errore nella creazione della collezione");
+            }
+        }
+
+        function openRenameCollectionModal(id) {
+            const coll = state.collections.find(c => c.id === id);
+            if (!coll) return;
+            pendingRenameCollectionId = id;
+            document.getElementById('renameCollectionNameInput').value = coll.name;
+            const modal = document.getElementById('renameCollectionModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeRenameCollectionModal() {
+            const modal = document.getElementById('renameCollectionModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingRenameCollectionId = null;
+        }
+
+        async function confirmRenameCollection() {
+            const id = pendingRenameCollectionId;
+            const name = document.getElementById('renameCollectionNameInput').value.trim();
+            if (!id || !name || !currentUser) return;
+
+            const existing = state.collections.find(c => c.id !== id && c.name.trim().toLowerCase() === name.toLowerCase());
+            if (existing) {
+                showToast(`Esiste già una collezione "${name}"`);
+                return;
+            }
+
+            try {
+                const { db, doc, updateDoc } = window.fb;
+                await updateDoc(doc(db, 'users', currentUser.uid, 'collections', id), { name: name });
+                closeRenameCollectionModal();
+                showToast("Collezione rinominata");
+            } catch (err) {
+                console.error('Rename collection error:', err);
+                showToast("Errore nella rinomina della collezione");
+            }
+        }
+
+        function openAddPalettesToCollectionModal(collectionId) {
+            pendingAddToCollectionId = collectionId;
+            const coll = state.collections.find(c => c.id === collectionId);
+            document.getElementById('addPalettesCollectionName').innerText = coll ? coll.name : '';
+            renderAddPalettesList();
+            const modal = document.getElementById('addPalettesModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeAddPalettesModal() {
+            const modal = document.getElementById('addPalettesModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingAddToCollectionId = null;
+            renderCollectionsTab();
+        }
+
+        function renderAddPalettesList() {
+            const container = document.getElementById('addPalettesList');
+            const collectionId = pendingAddToCollectionId;
+
+            if (state.savedPalettes.length === 0) {
+                container.innerHTML = `<p class="text-sm text-muted text-center py-6">Non hai ancora nessuna combinazione salvata.</p>`;
+                return;
+            }
+
+            container.innerHTML = state.savedPalettes.map(p => {
+                const inThis = p.collectionId === collectionId;
+                const bars = (p.palette || []).map(x => {
+                    const bg = (x.isTwoTone && x.hex2)
+                        ? `background: linear-gradient(135deg, ${x.hex} 50%, ${x.hex2} 50%)`
+                        : `background-color: ${x.hex}`;
+                    return `<span class="flex-1" style="${bg}"></span>`;
+                }).join('');
+                return `
+                    <button onclick="togglePaletteInCollection('${p.id}')" class="w-full flex items-center gap-3 rounded-xl p-2 text-left transition" style="border:1px solid ${inThis ? 'rgba(184,145,42,.4)' : 'var(--line)'}; background:${inThis ? 'rgba(184,145,42,.08)' : '#fff'};">
+                        <div class="flex w-10 h-10 rounded-lg overflow-hidden shrink-0" style="border:1px solid rgba(0,0,0,.08);">${bars}</div>
+                        <span class="text-sm font-medium text-ink flex-1 truncate">${p.name}</span>
+                        ${inThis
+                            ? '<i class="fa-solid fa-circle-check text-sm shrink-0" style="color:var(--brass);"></i>'
+                            : '<i class="fa-regular fa-circle text-sm shrink-0" style="color:var(--line);"></i>'}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        async function togglePaletteInCollection(paletteId) {
+            const collectionId = pendingAddToCollectionId;
+            const palette = state.savedPalettes.find(p => p.id === paletteId);
+            if (!palette || !collectionId || !currentUser) return;
+
+            const newCollectionId = palette.collectionId === collectionId ? null : collectionId;
+            try {
+                const { db, doc, updateDoc } = window.fb;
+                await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', paletteId), { collectionId: newCollectionId });
+                renderAddPalettesList();
+            } catch (err) {
+                console.error('Toggle palette collection error:', err);
+                showToast("Errore nell'aggiornamento della collezione");
+            }
+        }
+
+        async function removePaletteFromCollection(paletteId) {
+            if (!currentUser) return;
+            try {
+                const { db, doc, updateDoc } = window.fb;
+                await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', paletteId), { collectionId: null });
+                showToast("Rimossa dalla collezione");
+            } catch (err) {
+                console.error('Remove from collection error:', err);
+                showToast("Errore nella rimozione dalla collezione");
+            }
+        }
+
+        function paletteMiniCard(p) {
+            const bars = (p.palette || []).map(x => {
+                const bg = (x.isTwoTone && x.hex2)
+                    ? `background: linear-gradient(135deg, ${x.hex} 50%, ${x.hex2} 50%)`
+                    : `background-color: ${x.hex}`;
+                return `<span class="flex-1" style="${bg}"></span>`;
+            }).join('');
+            return `
+                <div class="card card-hover overflow-hidden cursor-pointer group" onclick="loadSavedPalette('${p.id}')">
+                    <div class="flex h-11">${bars}</div>
+                    <div class="p-2.5 flex items-center justify-between gap-1.5">
+                        <span class="text-xs font-medium text-ink truncate">${p.name}</span>
+                        <button onclick="event.stopPropagation(); removePaletteFromCollection('${p.id}')" class="btn btn-quiet w-6 h-6 rounded-md shrink-0" title="Rimuovi dalla collezione" aria-label="Rimuovi dalla collezione">
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCollectionsTab() {
+            const container = document.getElementById('collectionsListContainer');
+            if (!container) return;
+
+            if (state.collections.length === 0) {
+                container.innerHTML = emptyState('fa-folder-open', 'Nessuna collezione', 'Raggruppa le tue combinazioni per stagione, occasione o come preferisci.');
+                return;
+            }
+
+            container.innerHTML = state.collections.map(c => {
+                const palettes = state.savedPalettes.filter(p => p.collectionId === c.id);
+                const cardsHtml = palettes.map(p => paletteMiniCard(p)).join('');
+                return `
+                    <section class="card p-4 sm:p-5">
+                        <div class="flex items-center justify-between gap-3 flex-wrap">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <i class="fa-solid fa-folder text-sm" style="color:var(--brass);"></i>
+                                <h3 class="font-display text-xl text-navy truncate">${c.name}</h3>
+                                <span class="font-mono-p text-[10px] text-muted">${palettes.length}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="openAddPalettesToCollectionModal('${c.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Aggiungi palette" aria-label="Aggiungi palette">
+                                    <i class="fa-solid fa-plus text-[11px]"></i>
+                                </button>
+                                <button onclick="openRenameCollectionModal('${c.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Rinomina" aria-label="Rinomina">
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
+                                </button>
+                                <button onclick="deleteCollectionConfirm('${c.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Elimina collezione" aria-label="Elimina collezione">
+                                    <i class="fa-regular fa-trash-can text-[11px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            ${palettes.length === 0
+                                ? `<p class="text-sm text-muted">Vuota per ora — usa <i class="fa-solid fa-plus text-[9px]"></i> per aggiungere una combinazione.</p>`
+                                : `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 stagger">${cardsHtml}</div>`}
+                        </div>
+                    </section>
+                `;
+            }).join('');
         }
 
         function openRenameModal(id) {
