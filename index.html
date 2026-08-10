@@ -1856,14 +1856,15 @@
         function renderLoadGarmentList() {
             const container = document.getElementById('loadGarmentList');
             const layerIndex = pendingLoadGarmentLayerIndex;
-            const items = state.savedGarments.filter(g => g.layerIndex === layerIndex);
+            const owned = state.savedGarments.filter(g => g.layerIndex === layerIndex);
+            const toBuy = getShoppingListItems().filter(it => it.layerIndex === layerIndex);
 
-            if (items.length === 0) {
-                container.innerHTML = `<p class="text-sm text-muted text-center py-6">Nessun capo salvato per questa categoria.</p>`;
+            if (owned.length === 0 && toBuy.length === 0) {
+                container.innerHTML = `<p class="text-sm text-muted text-center py-6">Nessun capo, posseduto o da comprare, per questa categoria.</p>`;
                 return;
             }
 
-            container.innerHTML = items.map(g => {
+            const ownedCardsHtml = owned.map(g => {
                 const swatchStyle = (g.isTwoTone && g.hex2)
                     ? `background: linear-gradient(135deg, ${g.hex} 50%, ${g.hex2} 50%)`
                     : `background-color: ${g.hex}`;
@@ -1883,6 +1884,38 @@
                     </div>
                 `;
             }).join('');
+
+            const toBuyCardsHtml = toBuy.map(it => {
+                const swatchStyle = (it.isTwoTone && it.hex2)
+                    ? `background: linear-gradient(135deg, ${it.hex} 50%, ${it.hex2} 50%)`
+                    : `background-color: ${it.hex}`;
+                const hexDisplay = (it.isTwoTone && it.hex2) ? `${it.hex} / ${it.hex2}` : it.hex;
+                return `
+                    <button onclick="applyShoppingItem('${it.key}')" class="flex items-center gap-3 min-w-0 w-full text-left rounded-xl p-2" style="border:1px dashed rgba(140,47,57,.35); background:rgba(140,47,57,.03);">
+                        <span class="swatch w-10 h-10 shrink-0" style="${swatchStyle}"></span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block text-sm font-medium text-ink truncate">${it.name}</span>
+                            <span class="block font-mono-p text-[10px] text-muted truncate">${hexDisplay}</span>
+                        </span>
+                        <i class="fa-solid fa-bag-shopping text-[11px] shrink-0" style="color:#8C2F39;" title="Da comprare"></i>
+                    </button>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                ${owned.length > 0 ? `
+                    <div class="space-y-2">
+                        <span class="eyebrow">Nel guardaroba</span>
+                        <div class="space-y-2 mt-1.5">${ownedCardsHtml}</div>
+                    </div>
+                ` : ''}
+                ${toBuy.length > 0 ? `
+                    <div class="space-y-2 ${owned.length > 0 ? 'mt-4 pt-4' : ''}" ${owned.length > 0 ? 'style="border-top:1px solid var(--line);"' : ''}>
+                        <span class="eyebrow">Da comprare — prova prima di acquistare</span>
+                        <div class="space-y-2 mt-1.5">${toBuyCardsHtml}</div>
+                    </div>
+                ` : ''}
+            `;
         }
 
         function applyGarment(id) {
@@ -1902,6 +1935,25 @@
             renderSartorialLayers();
             closeLoadGarmentModal();
             showToast(`"${garment.name}" applicato`);
+        }
+
+        function applyShoppingItem(key) {
+            const item = getShoppingListItems().find(it => it.key === key);
+            const layerIndex = pendingLoadGarmentLayerIndex;
+            if (!item || layerIndex === null) return;
+
+            state.palette[layerIndex].hex = item.hex;
+            state.palette[layerIndex].isTwoTone = !!item.isTwoTone;
+            if (item.isTwoTone && item.hex2) {
+                state.palette[layerIndex].hex2 = item.hex2;
+            }
+            state.palette[layerIndex].name = item.name;
+            if (layerIndex === 0) state.baseColor = item.hex;
+
+            renderMoodboard();
+            renderSartorialLayers();
+            closeLoadGarmentModal();
+            showToast(`"${item.name}" applicato per prova — non ancora acquistato`);
         }
 
         function deleteGarment(id) {
