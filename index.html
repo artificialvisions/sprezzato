@@ -509,9 +509,8 @@
                     <!-- Anteprima outfit -->
                     <div class="lg:col-span-5 lg:sticky lg:top-36">
                         <div id="moodboardCanvas" class="relative rounded-2xl p-5 sm:p-6 overflow-hidden card" style="background: linear-gradient(160deg, #FFFFFF, var(--ivory));">
-                            <div class="flex items-center justify-between mb-4">
+                            <div class="mb-4">
                                 <span class="eyebrow">Anteprima</span>
-                                <span id="harmonyModeBadge" class="font-mono-p text-[10px] px-2.5 py-1 rounded-full" style="background: rgba(184,145,42,.12); color: #8A6D1C;">Complementare</span>
                             </div>
                             <div id="moodboardCardsContainer" class="space-y-2.5 relative z-10">
                                 <!-- Swatch generati via JS -->
@@ -533,14 +532,9 @@
         <!-- ============ PALETTE SALVATE ============ -->
         <div id="panel-palettes" class="tab-panel hidden">
             <div class="panel-enter">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
-                    <div>
-                        <span class="eyebrow">Archivio</span>
-                        <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">Le tue combinazioni</h2>
-                    </div>
-                    <button onclick="openConfirmClearModal()" class="btn btn-quiet px-3 py-1.5 text-xs self-start sm:self-auto">
-                        <i class="fa-regular fa-trash-can text-[11px]"></i> Svuota tutto
-                    </button>
+                <div class="mb-6">
+                    <span class="eyebrow">Archivio</span>
+                    <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">Le tue combinazioni</h2>
                 </div>
 
                 <!-- Ricerca + ordinamento -->
@@ -751,23 +745,6 @@
             <div class="flex justify-center gap-2 pt-1">
                 <button onclick="closeConfirmActionModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
                 <button id="confirmActionButton" onclick="executeConfirmAction()" class="btn px-4 py-2 text-xs text-white" style="background:#8C2F39;">Conferma</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Conferma Svuota -->
-    <div id="confirmClearModal" class="modal opacity-0 pointer-events-none">
-        <div class="modal-panel p-6 space-y-4 text-center" style="max-width: 23rem;">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto" style="background: rgba(140,47,57,.08); color:#8C2F39;">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <div>
-                <h3 class="font-display text-lg text-navy">Svuotare il guardaroba?</h3>
-                <p class="text-sm text-muted mt-1.5">Cancellerà definitivamente tutte le palette e i capi salvati sul tuo account.</p>
-            </div>
-            <div class="flex justify-center gap-2 pt-1">
-                <button onclick="closeConfirmClearModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
-                <button onclick="confirmClearWardrobe()" class="btn px-4 py-2 text-xs text-white" style="background:#8C2F39;">Svuota tutto</button>
             </div>
         </div>
     </div>
@@ -1204,7 +1181,6 @@
                 { layer: '04. Scarpe & Accessori', hex: p3_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p3_hex, 3) }
             ];
 
-            document.getElementById('harmonyModeBadge').innerText = state.harmonyMode;
             renderMoodboard();
             renderSartorialLayers();
         }
@@ -1550,14 +1526,12 @@
                     <div class="p-4 pt-3.5 flex-1 flex flex-col">
                         <h4 class="font-display text-lg text-navy leading-snug truncate">${item.name}</h4>
                         <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <span class="eyebrow">${item.harmonyMode || ''}</span>
                             ${missing > 0
                                 ? `<span class="pill-buy"><i class="fa-solid fa-bag-shopping text-[9px]"></i> ${missing} da comprare</span>`
                                 : `<span class="pill-own"><i class="fa-solid fa-check text-[9px]"></i> completo</span>`}
                         </div>
 
-                        <div class="flex items-center justify-between gap-2 mt-3.5 pt-3" style="border-top:1px solid var(--line);">
-                            <span class="font-mono-p text-[10px] text-muted">${item.date || ''}</span>
+                        <div class="flex items-center justify-end gap-1 mt-3.5 pt-3" style="border-top:1px solid var(--line);">
                             <div class="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                 <button onclick="event.stopPropagation(); openRenameModal('${item.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Rinomina" aria-label="Rinomina">
                                     <i class="fa-solid fa-pen text-[11px]"></i>
@@ -1581,7 +1555,6 @@
             state.harmonyMode = found.harmonyMode;
             state.palette = JSON.parse(JSON.stringify(found.palette));
 
-            document.getElementById('harmonyModeBadge').innerText = state.harmonyMode;
             renderMoodboard();
             renderSartorialLayers();
             showLoadedPaletteBanner(found.id, found.name);
@@ -2283,39 +2256,6 @@
                 confirmActionCallback();
             }
             closeConfirmActionModal();
-        }
-
-        function openConfirmClearModal() {
-            if (state.savedPalettes.length === 0 && state.savedGarments.length === 0) {
-                showToast("Il guardaroba è già vuoto!");
-                return;
-            }
-            const modal = document.getElementById('confirmClearModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        function closeConfirmClearModal() {
-            const modal = document.getElementById('confirmClearModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-        }
-
-        async function confirmClearWardrobe() {
-            if (!currentUser) return;
-            try {
-                const { db, collection, getDocs, writeBatch } = window.fb;
-                const palettesSnap = await getDocs(collection(db, 'users', currentUser.uid, 'palettes'));
-                const garmentsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'garments'));
-                const batch = writeBatch(db);
-                palettesSnap.forEach(d => batch.delete(d.ref));
-                garmentsSnap.forEach(d => batch.delete(d.ref));
-                await batch.commit();
-                hideLoadedPaletteBanner();
-                closeConfirmClearModal();
-                showToast("Guardaroba svuotato");
-            } catch (err) {
-                console.error('Clear wardrobe error:', err);
-                showToast("Errore nello svuotamento del guardaroba");
-            }
         }
 
         let toastTimer = null;
