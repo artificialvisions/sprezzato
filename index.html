@@ -1,9 +1,21 @@
 <!DOCTYPE html>
-<html lang="it" class="h-full bg-slate-950 text-slate-100">
+<html lang="it" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sprezzato - Moodboard Sartoriale & Palette Spezzati</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sprezzato — Guardaroba Sartoriale</title>
+    <meta name="description" content="Il tuo guardaroba sartoriale: combinazioni spezzate, capi e lista acquisti sempre sincronizzati.">
+
+    <!-- Icone app / home screen -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#12344F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sprezzato">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -11,108 +23,391 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper:   '#FDFBF6',
+                        ivory:   '#F7F1E4',
+                        linen:   '#EFE7D6',
+                        line:    '#E2D8C3',
+                        navy:    '#12344F',
+                        'navy-deep': '#0B2033',
+                        ink:     '#1B2A36',
+                        muted:   '#6E7C87',
+                        brass:   '#B8912A',
+                        'brass-light': '#D9BE72',
+                        wine:    '#8C2F39'
+                    },
+                    fontFamily: {
+                        display: ['Fraunces', 'Georgia', 'serif'],
+                        sans:    ['Instrument Sans', 'system-ui', 'sans-serif'],
+                        mono:    ['IBM Plex Mono', 'ui-monospace', 'monospace']
+                    },
+                    boxShadow: {
+                        card:  '0 1px 2px rgba(18,52,79,.04), 0 8px 24px -12px rgba(18,52,79,.18)',
+                        lift:  '0 2px 4px rgba(18,52,79,.06), 0 18px 40px -16px rgba(18,52,79,.28)',
+                        inset: 'inset 0 1px 0 rgba(255,255,255,.6)'
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
+        :root {
+            --paper: #FDFBF6;
+            --ivory: #F7F1E4;
+            --linen: #EFE7D6;
+            --line:  #E2D8C3;
+            --navy:  #12344F;
+            --navy-deep: #0B2033;
+            --ink:   #1B2A36;
+            --muted: #6E7C87;
+            --brass: #B8912A;
+            --brass-light: #D9BE72;
+            --ease: cubic-bezier(.22,.61,.36,1);
+            --ease-out: cubic-bezier(.16,1,.3,1);
+        }
+
+        html { -webkit-text-size-adjust: 100%; }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Instrument Sans', system-ui, sans-serif;
+            background-color: var(--paper);
+            color: var(--ink);
+            /* trama di carta: micro-grana + alone caldo */
+            background-image:
+                radial-gradient(1200px 600px at 50% -10%, rgba(184,145,42,.07), transparent 60%),
+                radial-gradient(900px 500px at 100% 100%, rgba(18,52,79,.05), transparent 60%);
+            background-attachment: fixed;
         }
-        .font-serif-title {
-            font-family: 'Playfair Display', serif;
+
+        .font-display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+        .font-mono-p  { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+
+        /* wordmark */
+        .wordmark {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            font-variation-settings: 'SOFT' 0, 'WONK' 1;
         }
-        .font-cinzel {
-            font-family: 'Cinzel', serif;
-        }
-        /* Custom Scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(51, 65, 85, 0.8);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 1);
-        }
+
+        /* ---------- Scrollbars ---------- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(18,52,79,.18); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(18,52,79,.32); background-clip: padding-box; }
+        ::selection { background: var(--brass); color: #fff; }
+
+        /* ---------- Tabs ---------- */
         .tab-btn {
-            color: rgb(148 163 184);
-            border-color: transparent;
+            position: relative;
+            color: var(--muted);
+            transition: color .28s var(--ease), background-color .28s var(--ease);
+            -webkit-tap-highlight-color: transparent;
         }
-        .tab-btn:hover {
-            color: rgb(226 232 240);
-            background-color: rgba(30, 41, 59, 0.6);
+        .tab-btn:hover { color: var(--navy); }
+        .tab-btn.active { color: var(--navy); }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            left: 50%; bottom: 0;
+            height: 2px; width: 0;
+            background: linear-gradient(90deg, var(--brass), var(--brass-light));
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: width .38s var(--ease-out);
         }
-        .tab-btn.active {
-            color: rgb(252 211 77);
-            border-color: rgb(245 158 11);
-        }
+        .tab-btn.active::after { width: calc(100% - 1.5rem); }
+
         .tab-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 1.1rem;
-            height: 1.1rem;
-            padding: 0 0.3rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 1.15rem; height: 1.15rem; padding: 0 .35rem;
             border-radius: 9999px;
-            font-size: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px; font-weight: 500;
+            background: rgba(18,52,79,.08);
+            color: var(--muted);
+            transition: background-color .3s var(--ease), color .3s var(--ease);
+        }
+        .tab-btn.active .tab-badge { background: rgba(184,145,42,.16); color: #8A6D1C; }
+        .tab-badge:empty { display: none; }
+
+        /* ---------- Motion ---------- */
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
+        }
+        @keyframes fade {
+            from { opacity: 0; } to { opacity: 1; }
+        }
+        @keyframes sheen {
+            from { background-position: -180% 0; }
+            to   { background-position: 280% 0; }
+        }
+        .rise { animation: rise .62s var(--ease-out) both; }
+        .panel-enter > * { animation: rise .55s var(--ease-out) both; }
+        .panel-enter > *:nth-child(1) { animation-delay: .02s; }
+        .panel-enter > *:nth-child(2) { animation-delay: .08s; }
+        .panel-enter > *:nth-child(3) { animation-delay: .14s; }
+        .panel-enter > *:nth-child(4) { animation-delay: .2s; }
+
+        .stagger > * { animation: rise .5s var(--ease-out) both; }
+        .stagger > *:nth-child(1) { animation-delay: .03s; }
+        .stagger > *:nth-child(2) { animation-delay: .07s; }
+        .stagger > *:nth-child(3) { animation-delay: .11s; }
+        .stagger > *:nth-child(4) { animation-delay: .15s; }
+        .stagger > *:nth-child(5) { animation-delay: .19s; }
+        .stagger > *:nth-child(6) { animation-delay: .23s; }
+        .stagger > *:nth-child(n+7) { animation-delay: .27s; }
+
+        /* ---------- Superfici ---------- */
+        .card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: 0 1px 2px rgba(18,52,79,.04), 0 8px 24px -14px rgba(18,52,79,.16);
+            transition: transform .4s var(--ease-out), box-shadow .4s var(--ease-out), border-color .3s var(--ease);
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 2px 6px rgba(18,52,79,.06), 0 22px 46px -20px rgba(18,52,79,.3);
+            border-color: rgba(184,145,42,.45);
+        }
+
+        /* ---------- Bottoni ---------- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+            border-radius: 12px;
             font-weight: 600;
-            background: rgba(51, 65, 85, 0.8);
-            color: rgb(203 213 225);
+            letter-spacing: .01em;
+            transition: transform .2s var(--ease), background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+            -webkit-tap-highlight-color: transparent;
         }
-        .tab-btn.active .tab-badge {
-            background: rgba(245, 158, 11, 0.2);
-            color: rgb(252 211 77);
+        .btn:active { transform: scale(.97); }
+
+        .btn-primary {
+            background: linear-gradient(180deg, var(--navy), var(--navy-deep));
+            color: #F7F1E4;
+            box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 8px 20px -10px rgba(18,52,79,.6);
         }
-        .tab-badge:empty {
-            display: none;
+        .btn-primary:hover { box-shadow: 0 1px 0 rgba(255,255,255,.22) inset, 0 12px 26px -10px rgba(18,52,79,.7); }
+
+        .btn-brass {
+            background: linear-gradient(180deg, #C9A23C, var(--brass));
+            color: #fff;
+            box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 8px 20px -10px rgba(184,145,42,.7);
+        }
+
+        .btn-ghost {
+            background: #fff;
+            color: var(--navy);
+            border: 1px solid var(--line);
+        }
+        .btn-ghost:hover { border-color: rgba(18,52,79,.35); background: var(--paper); }
+
+        .btn-quiet { color: var(--muted); }
+        .btn-quiet:hover { color: var(--navy); background: rgba(18,52,79,.05); }
+
+        /* icona quadrata */
+        .btn-icon {
+            width: 34px; height: 34px; border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid var(--line); background: #fff; color: var(--navy);
+            transition: all .25s var(--ease);
+        }
+        .btn-icon:hover { border-color: rgba(184,145,42,.6); color: var(--brass); transform: translateY(-1px); }
+        .btn-icon:active { transform: scale(.94); }
+
+        /* ---------- Input ---------- */
+        .field {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: .6rem .85rem;
+            font-size: .9rem;
+            color: var(--ink);
+            transition: border-color .25s var(--ease), box-shadow .25s var(--ease);
+        }
+        .field::placeholder { color: #A9B3BB; }
+        .field:focus {
+            outline: none;
+            border-color: var(--brass);
+            box-shadow: 0 0 0 3px rgba(184,145,42,.14);
+        }
+
+        /* ---------- Etichette ---------- */
+        .eyebrow {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* pill "da acquistare" */
+        .pill-buy {
+            display: inline-flex; align-items: center; gap: .3rem;
+            padding: .15rem .5rem;
+            border-radius: 9999px;
+            font-size: 10px; font-weight: 600;
+            background: rgba(140,47,57,.08);
+            color: #8C2F39;
+            border: 1px solid rgba(140,47,57,.2);
+        }
+        .pill-own {
+            display: inline-flex; align-items: center; gap: .3rem;
+            padding: .15rem .5rem;
+            border-radius: 9999px;
+            font-size: 10px; font-weight: 600;
+            background: rgba(18,52,79,.06);
+            color: var(--muted);
+            border: 1px solid var(--line);
+        }
+
+        /* ---------- Swatch ---------- */
+        .swatch {
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.25);
+        }
+
+        /* striscia colpo d'occhio nelle palette salvate */
+        .colorbar {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+            height: 84px;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.07);
+        }
+        .colorbar > span { transition: flex .4s var(--ease-out); position: relative; }
+        .colorbar > span::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,.14), transparent 45%);
+        }
+
+        /* ---------- Modali ----------
+           Lo stato aperto/chiuso resta governato dalle utility Tailwind
+           .opacity-0 / .pointer-events-none già usate dal JS.
+           NB: niente backdrop-filter qui — su iOS rompe l'ancoraggio
+           del color picker nativo dentro il modal dei capi. */
+        .modal {
+            position: fixed; inset: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+            background: rgba(11,32,51,.45);
+            transition: opacity .3s var(--ease);
+        }
+        .modal-panel {
+            width: 100%; max-width: 26rem;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: 0 40px 80px -30px rgba(11,32,51,.55);
+            transform: translateY(14px) scale(.98);
+            opacity: 0;
+            transition: transform .42s var(--ease-out), opacity .28s var(--ease);
+            max-height: calc(100dvh - 2rem);
+            overflow-y: auto;
+        }
+        .modal:not(.opacity-0) .modal-panel { transform: none; opacity: 1; }
+
+        /* ---------- Toast ---------- */
+        .toast {
+            position: fixed;
+            left: 50%; bottom: max(1.25rem, env(safe-area-inset-bottom));
+            transform: translate(-50%, 140%);
+            z-index: 60;
+            display: flex; align-items: center; gap: .55rem;
+            padding: .7rem 1.1rem;
+            border-radius: 9999px;
+            background: var(--navy);
+            color: var(--ivory);
+            font-size: .8rem; font-weight: 600;
+            box-shadow: 0 20px 40px -18px rgba(11,32,51,.8);
+            transition: transform .5s var(--ease-out), opacity .35s var(--ease);
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: calc(100vw - 2rem);
+        }
+        .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+        /* filo dorato decorativo */
+        .rule-brass {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(184,145,42,.5), transparent);
+        }
+
+        /* skeleton shimmer per il caricamento */
+        .shimmer {
+            background: linear-gradient(90deg, var(--linen) 25%, #F8F3E8 50%, var(--linen) 75%);
+            background-size: 200% 100%;
+            animation: sheen 1.6s linear infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
         }
     </style>
 </head>
-<body class="h-full flex flex-col bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
+<body class="h-full flex flex-col overflow-x-hidden">
 
     <!-- Auth Loading Overlay -->
-    <div id="authLoading" class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950">
-        <div class="flex flex-col items-center gap-3 text-amber-400">
-            <i class="fa-solid fa-shirt text-3xl animate-pulse"></i>
-            <span class="text-xs text-slate-400 font-mono">Verifica sessione...</span>
+    <div id="authLoading" class="fixed inset-0 z-[70] flex items-center justify-center" style="background: var(--paper);">
+        <div class="flex flex-col items-center gap-4">
+            <img src="icons/icon-192.png" alt="" class="w-16 h-16 rounded-2xl" style="border:1px solid var(--line); animation: fade 1.4s var(--ease) infinite alternate;">
+            <span class="eyebrow">Verifica sessione</span>
         </div>
     </div>
 
     <!-- Auth Screen: Login / Registrazione -->
-    <div id="authScreen" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-950 p-4">
-        <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-2xl">
-            <div class="text-center space-y-1">
-                <div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold text-xl">
-                    <i class="fa-solid fa-shirt"></i>
-                </div>
-                <h1 class="font-cinzel font-bold text-lg tracking-wider text-amber-100 uppercase pt-2">Sprezzato</h1>
-                <p id="authSubtitle" class="text-xs text-slate-400">Accedi al tuo guardaroba personale</p>
-            </div>
-
-            <div class="space-y-3">
+    <div id="authScreen" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-5" style="background: var(--paper);">
+        <div class="w-full max-w-sm rise">
+            <div class="text-center space-y-3 mb-8">
+                <img src="icons/icon-192.png" alt="Sprezzato" class="w-24 h-24 mx-auto rounded-2xl" style="border:1px solid var(--line); box-shadow: 0 18px 36px -18px rgba(18,52,79,.45);">
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Email</label>
-                    <input type="email" id="authEmailInput" placeholder="tuo@indirizzo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
-                    <input type="password" id="authPasswordInput" placeholder="••••••••" onkeydown="if(event.key === 'Enter') submitAuthForm()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+                    <h1 class="wordmark text-2xl text-navy pt-1">Sprezzato</h1>
+                    <div class="rule-brass w-24 mx-auto my-2.5"></div>
+                    <p id="authSubtitle" class="text-sm text-muted">Accedi al tuo guardaroba personale</p>
                 </div>
             </div>
 
-            <p id="authErrorMessage" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2"></p>
+            <div class="card p-6 space-y-4">
+                <div class="space-y-3">
+                    <div>
+                        <label class="eyebrow block mb-1.5">Email</label>
+                        <input type="email" id="authEmailInput" placeholder="tuo@indirizzo.com" autocomplete="email" class="field">
+                    </div>
+                    <div>
+                        <label class="eyebrow block mb-1.5">Password</label>
+                        <input type="password" id="authPasswordInput" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key === 'Enter') submitAuthForm()" class="field">
+                    </div>
+                </div>
 
-            <div class="space-y-2">
-                <button id="authSubmitButton" onclick="submitAuthForm()" class="w-full px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-sm font-semibold shadow-md transition">
-                    Accedi
-                </button>
-                <button onclick="toggleAuthMode()" class="w-full text-xs text-slate-400 hover:text-amber-400 transition py-1">
-                    <span id="authToggleText">Non hai un account? Registrati</span>
-                </button>
+                <p id="authErrorMessage" class="hidden text-xs rounded-xl px-3 py-2" style="background: rgba(140,47,57,.07); color: #8C2F39; border: 1px solid rgba(140,47,57,.2);"></p>
+
+                <div class="space-y-2 pt-1">
+                    <button id="authSubmitButton" onclick="submitAuthForm()" class="btn btn-primary w-full px-4 py-2.5 text-sm">
+                        Accedi
+                    </button>
+                    <button onclick="toggleAuthMode()" class="btn btn-quiet w-full text-xs py-2">
+                        <span id="authToggleText">Non hai un account? Registrati</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -121,423 +416,375 @@
     <div id="appShell" class="hidden flex-1 flex flex-col">
 
     <!-- Header -->
-    <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold text-lg">
-                    <i class="fa-solid fa-shirt"></i>
-                </div>
-                <div>
-                    <h1 class="font-cinzel font-bold text-lg sm:text-xl tracking-wider text-amber-100 uppercase">Sprezzato</h1>
-                    <p class="text-[10px] text-slate-400 hidden sm:block tracking-wide">L'Arte dello Spezzato Sartoriale</p>
+    <header class="sticky top-0 z-40 border-b" style="border-color: var(--line); background: rgba(253,251,246,.86); backdrop-filter: saturate(180%) blur(12px);">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <img src="icons/icon-192.png" alt="" class="w-9 h-9 rounded-xl shrink-0" style="border:1px solid var(--line); box-shadow: 0 2px 8px -3px rgba(18,52,79,.25);">
+                <div class="min-w-0">
+                    <h1 class="wordmark text-base sm:text-lg text-navy leading-none">Sprezzato</h1>
+                    <p class="eyebrow hidden sm:block mt-1">L'arte dello spezzato</p>
                 </div>
             </div>
 
-            <!-- Global Action Toolbar -->
-            <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
-                <button onclick="generateHarmony(true)" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-md shadow-amber-500/10">
-                    <i class="fa-solid fa-lock"></i>
-                    <span class="hidden md:inline">Nuova Armonia</span> (Base Fissa)
+            <div class="flex items-center gap-2">
+                <span id="userEmailLabel" class="font-mono-p text-[11px] text-muted hidden lg:inline max-w-[150px] truncate"></span>
+                <button onclick="logoutUser()" class="btn-icon" title="Esci" aria-label="Esci">
+                    <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
                 </button>
-                <button onclick="generateHarmony(false)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-dice"></i>
-                    <span class="hidden sm:inline">Randomizza Tutto</span>
-                </button>
-                <button onclick="openSaveModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bookmark text-amber-400"></i>
-                    <span class="hidden sm:inline">Salva Palette</span>
-                </button>
-                <div class="flex items-center gap-2 pl-2 ml-1 border-l border-slate-700">
-                    <span id="userEmailLabel" class="text-[11px] text-slate-400 font-mono hidden sm:inline max-w-[140px] truncate"></span>
-                    <button onclick="logoutUser()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs" title="Esci">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </div>
             </div>
         </div>
     </header>
 
     <!-- Loaded Palette Banner -->
-    <div id="loadedPaletteBanner" class="hidden bg-amber-500/10 border-b border-amber-500/30 text-amber-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
-            <span class="flex items-center gap-2 min-w-0">
-                <i class="fa-solid fa-bookmark shrink-0"></i>
-                <span class="truncate">Outfit caricato: <strong id="loadedPaletteName" class="font-semibold text-amber-100"></strong></span>
+    <div id="loadedPaletteBanner" class="hidden border-b" style="border-color: rgba(184,145,42,.3); background: linear-gradient(180deg, rgba(184,145,42,.1), rgba(184,145,42,.04));">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+            <span class="flex items-center gap-2.5 min-w-0">
+                <i class="fa-solid fa-bookmark text-[11px] shrink-0" style="color: var(--brass);"></i>
+                <span class="text-sm truncate text-ink">In modifica: <strong id="loadedPaletteName" class="font-semibold"></strong></span>
             </span>
             <span class="flex items-center gap-2 shrink-0">
-                <button onclick="updateLoadedPalette()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 border border-amber-500/40 text-[11px] font-semibold transition flex items-center gap-1.5" title="Sovrascrivi questa palette con le modifiche attuali">
-                    <i class="fa-solid fa-rotate"></i> Aggiorna
+                <button onclick="updateLoadedPalette()" class="btn btn-brass px-3 py-1.5 text-[11px]" title="Sovrascrivi questa palette con le modifiche attuali">
+                    <i class="fa-solid fa-check text-[10px]"></i> <span class="hidden sm:inline">Aggiorna</span>
                 </button>
-                <button onclick="openSaveAsModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-semibold transition flex items-center gap-1.5" title="Salva questa combinazione come nuova palette, senza toccare l'originale">
-                    <i class="fa-solid fa-copy"></i> Salva con nome
+                <button onclick="openSaveAsModal()" class="btn btn-ghost px-3 py-1.5 text-[11px]" title="Salva come nuova palette, senza toccare l'originale">
+                    <i class="fa-solid fa-plus text-[10px]"></i> <span class="hidden sm:inline">Salva nuova</span>
                 </button>
-                <button onclick="hideLoadedPaletteBanner()" class="text-amber-300 hover:text-amber-100" title="Nascondi">
-                    <i class="fa-solid fa-xmark"></i>
+                <button onclick="hideLoadedPaletteBanner()" class="btn btn-quiet w-7 h-7 rounded-lg" title="Scollega" aria-label="Scollega">
+                    <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </span>
         </div>
     </div>
 
     <!-- Tab Navigation -->
-    <nav class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-16 z-30">
-        <div class="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8 flex items-stretch justify-between sm:justify-start gap-0.5 sm:gap-1">
-            <button onclick="switchTab('builder')" data-tab="builder" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
-                <i class="fa-solid fa-shirt"></i>
-                <span class="text-[10px] sm:hidden truncate">Crea</span>
-                <span class="hidden sm:inline">Crea Outfit</span>
+    <nav class="sticky top-16 z-30 border-b" style="border-color: var(--line); background: rgba(253,251,246,.9); backdrop-filter: saturate(180%) blur(12px);">
+        <div class="max-w-6xl mx-auto px-2 sm:px-6 flex items-stretch justify-between sm:justify-start sm:gap-2">
+            <button onclick="switchTab('builder')" data-tab="builder" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                <span class="text-[11px] sm:text-sm font-semibold">Crea</span>
             </button>
-            <button onclick="switchTab('palettes')" data-tab="palettes" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
-                <i class="fa-solid fa-box-archive"></i>
-                <span class="flex items-center gap-1 text-[10px] sm:text-sm truncate">Palette <span id="paletteCountBadge" class="tab-badge"></span></span>
+            <button onclick="switchTab('palettes')" data-tab="palettes" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-layer-group text-sm"></i>
+                <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Palette <span id="paletteCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
-                <i class="fa-solid fa-vest"></i>
-                <span class="flex items-center gap-1 text-[10px] sm:text-sm truncate">Capi <span id="garmentCountBadge" class="tab-badge"></span></span>
+            <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-vest text-sm"></i>
+                <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Capi <span id="garmentCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('shopping')" data-tab="shopping" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span class="text-[10px] sm:hidden truncate">Compra</span>
-                <span class="hidden sm:flex items-center gap-1">Da Comprare <span id="shoppingCountBadge" class="tab-badge"></span></span>
+            <button onclick="switchTab('shopping')" data-tab="shopping" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-bag-shopping text-sm"></i>
+                <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Lista <span id="shoppingCountBadge" class="tab-badge"></span></span>
             </button>
         </div>
     </nav>
 
     <!-- Main Content Grid -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
+        <!-- ============ CREA OUTFIT ============ -->
         <div id="panel-builder" class="tab-panel">
-        <!-- Interactive Workspace: Left Moodboard Canvas / Right Sartorial Breakdown -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            <!-- LEFT: Floating Moodboard Display -->
-            <div class="lg:col-span-5 space-y-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="font-serif-title text-lg text-amber-200 flex items-center gap-2">
-                        <i class="fa-solid fa-image text-amber-500"></i> Moodboard Visivo
-                    </h2>
-                    <span id="harmonyModeBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-400 border border-amber-500/30">
-                        Complementare
-                    </span>
-                </div>
+            <div class="panel-enter">
 
-                <!-- Canvas Area with Textured Background -->
-                <div id="moodboardCanvas" class="relative rounded-3xl p-6 md:p-8 min-h-[460px] flex flex-col justify-center items-center shadow-2xl border border-slate-800 overflow-hidden transition-all duration-500 bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80');">
-                    
-                    <!-- Overlay Cards Grid (Floating Stack) -->
-                    <div id="moodboardCardsContainer" class="w-full max-w-sm space-y-3.5 relative z-10">
-                        <!-- Dynamic Swatches Generated via JS -->
-                    </div>
-
-                    <!-- Ambient Glow Effect -->
-                    <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                </div>
-
-                <!-- Background Style Selector for Moodboard -->
-                <div class="flex items-center justify-between gap-2 px-1 text-xs text-slate-400">
-                    <span>Sfondo Moodboard:</span>
-                    <div class="flex gap-2">
-                        <button onclick="changeMoodboardBg('riviera')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px]">Riviera</button>
-                        <button onclick="changeMoodboardBg('linen')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px]">Lino</button>
-                        <button onclick="changeMoodboardBg('dark')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px]">Minimal</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT: Sartorial 4-Layer Controls & Customizer -->
-            <div class="lg:col-span-7 space-y-4">
-                <div class="flex items-center justify-between">
+                <!-- Intestazione + azioni -->
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-7">
                     <div>
-                        <h2 class="font-serif-title text-lg text-amber-200">Abbinamento Spezzato</h2>
-                        <p class="text-xs text-slate-400">Personalizza i 4 livelli del tuo outfit sartoriale.</p>
+                        <span class="eyebrow">Studio</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">L'abbinamento di oggi</h2>
                     </div>
-                    <button onclick="copyAllHex()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-copy"></i> Copia HEX Palette
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="generateHarmony(false)" class="btn btn-ghost px-3.5 py-2 text-xs" title="Genera una combinazione completamente nuova">
+                            <i class="fa-solid fa-shuffle text-[11px]"></i> Nuova
+                        </button>
+                        <button onclick="generateHarmony(true)" class="btn btn-ghost px-3.5 py-2 text-xs" title="Cambia armonia mantenendo il colore del pantalone">
+                            <i class="fa-solid fa-rotate text-[11px]"></i> Varia
+                        </button>
+                        <button onclick="openSaveModal()" class="btn btn-primary px-4 py-2 text-xs">
+                            <i class="fa-solid fa-bookmark text-[11px]"></i> Salva
+                        </button>
+                    </div>
                 </div>
 
-                <!-- The 5 Sartorial Layers Container -->
-                <div id="sartorialLayersContainer" class="space-y-3">
-                    <!-- Layer cards injected dynamically -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+                    <!-- Anteprima outfit -->
+                    <div class="lg:col-span-5 lg:sticky lg:top-36">
+                        <div id="moodboardCanvas" class="relative rounded-2xl p-5 sm:p-6 overflow-hidden card" style="background: linear-gradient(160deg, #FFFFFF, var(--ivory));">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="eyebrow">Anteprima</span>
+                                <span id="harmonyModeBadge" class="font-mono-p text-[10px] px-2.5 py-1 rounded-full" style="background: rgba(184,145,42,.12); color: #8A6D1C;">Complementare</span>
+                            </div>
+                            <div id="moodboardCardsContainer" class="space-y-2.5 relative z-10">
+                                <!-- Swatch generati via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Livelli -->
+                    <div class="lg:col-span-7">
+                        <div id="sartorialLayersContainer" class="space-y-3">
+                            <!-- Card livello generate via JS -->
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
-        </div>
         </div>
 
-        <!-- SAVED PALETTES / WARDROBE SECTION -->
+        <!-- ============ PALETTE SALVATE ============ -->
         <div id="panel-palettes" class="tab-panel hidden">
-        <section class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
-                        <i class="fa-solid fa-box-archive text-amber-500"></i> Il Tuo Guardaroba Palette
-                    </h2>
-                    <p class="text-xs text-slate-400">Combinazioni e capi salvati sul tuo account, sincronizzati automaticamente su tutti i dispositivi.</p>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button onclick="openConfirmClearModal()" class="text-xs text-slate-500 hover:text-red-400 transition flex items-center gap-1">
-                        <i class="fa-solid fa-trash-can"></i> Svuota
+            <div class="panel-enter">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                    <div>
+                        <span class="eyebrow">Archivio</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">Le tue combinazioni</h2>
+                    </div>
+                    <button onclick="openConfirmClearModal()" class="btn btn-quiet px-3 py-1.5 text-xs self-start sm:self-auto">
+                        <i class="fa-regular fa-trash-can text-[11px]"></i> Svuota tutto
                     </button>
                 </div>
-            </div>
 
-            <!-- Sort Control -->
-            <div class="flex items-center justify-end gap-2">
-                <label for="sortPalettesSelect" class="text-[11px] text-slate-400">Ordina per:</label>
-                <select id="sortPalettesSelect" onchange="setSortMode(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500">
-                    <option value="recent">Più recenti</option>
-                    <option value="name">Nome combinazione</option>
-                    <option value="jacket">Colore giacca</option>
-                    <option value="pants">Colore pantalone</option>
-                    <option value="shirt">Colore camicia</option>
-                </select>
-            </div>
-
-            <!-- Saved Grid -->
-            <div id="savedPalettesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Injected via JS -->
-            </div>
-        </section>
-        </div>
-
-        <!-- GARMENT CATALOG SECTION -->
-        <div id="panel-garments" class="tab-panel hidden">
-        <section class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
-                        <i class="fa-solid fa-shirt text-amber-500"></i> Il Tuo Guardaroba Capi
-                    </h2>
-                    <p class="text-xs text-slate-400">Tutti i capi che possiedi già, catalogati per tipo.</p>
+                <!-- Ricerca + ordinamento -->
+                <div class="flex flex-col sm:flex-row gap-2.5 mb-6">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs" style="color: var(--muted);"></i>
+                        <input type="search" id="paletteSearchInput" oninput="setPaletteSearch(this.value)" placeholder="Cerca una combinazione…" class="field pl-9">
+                    </div>
+                    <select id="sortPalettesSelect" onchange="setSortMode(this.value)" class="field sm:w-52 cursor-pointer">
+                        <option value="recent">Più recenti</option>
+                        <option value="name">Nome</option>
+                        <option value="jacket">Colore giacca</option>
+                        <option value="pants">Colore pantalone</option>
+                        <option value="shirt">Colore camicia</option>
+                    </select>
                 </div>
-                <button onclick="openAddGarmentModal()" class="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold transition flex items-center gap-1.5 shrink-0">
-                    <i class="fa-solid fa-plus"></i> Aggiungi Capo
-                </button>
+
+                <div id="savedPalettesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+                    <!-- Generate via JS -->
+                </div>
             </div>
-            <div id="garmentCatalog" class="space-y-6">
-                <!-- Injected via JS -->
-            </div>
-        </section>
         </div>
 
-        <!-- SHOPPING LIST SECTION -->
+        <!-- ============ CAPI ============ -->
+        <div id="panel-garments" class="tab-panel hidden">
+            <div class="panel-enter">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                    <div>
+                        <span class="eyebrow">Guardaroba</span>
+                        <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">I capi che possiedi</h2>
+                    </div>
+                    <button onclick="openAddGarmentModal()" class="btn btn-primary px-4 py-2 text-xs self-start sm:self-auto">
+                        <i class="fa-solid fa-plus text-[11px]"></i> Aggiungi capo
+                    </button>
+                </div>
+
+                <div class="relative mb-6">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs" style="color: var(--muted);"></i>
+                    <input type="search" id="garmentSearchInput" oninput="setGarmentSearch(this.value)" placeholder="Cerca un capo…" class="field pl-9">
+                </div>
+
+                <div id="garmentCatalog" class="space-y-8">
+                    <!-- Generate via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ LISTA ACQUISTI ============ -->
         <div id="panel-shopping" class="tab-panel hidden">
-        <section class="space-y-4">
-            <div>
-                <h2 class="font-serif-title text-xl text-amber-100 flex items-center gap-2">
-                    <i class="fa-solid fa-cart-shopping text-amber-500"></i> Lista Acquisti
-                </h2>
-                <p class="text-xs text-slate-400">Colori usati nelle combinazioni salvate che non hai ancora in guardaroba.</p>
+            <div class="panel-enter">
+                <div class="mb-6">
+                    <span class="eyebrow">Da comprare</span>
+                    <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">Lista acquisti</h2>
+                    <p class="text-sm text-muted mt-2 max-w-lg">I colori che usi nelle combinazioni salvate ma che non hai ancora in guardaroba.</p>
+                </div>
+                <div id="shoppingListContainer" class="space-y-8">
+                    <!-- Generate via JS -->
+                </div>
             </div>
-            <div id="shoppingListContainer" class="space-y-6">
-                <!-- Injected via JS -->
-            </div>
-        </section>
         </div>
 
     </main>
 
     <!-- Modal: Salva Palette con Nome -->
-    <div id="saveModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-bookmark text-amber-500"></i> Salva Outfit nel Guardaroba
-                </h3>
-                <button onclick="closeSaveModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <div id="saveModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg text-navy">Salva combinazione</h3>
+                <button onclick="closeSaveModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
+            <div class="rule-brass"></div>
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Nome della combinazione:</label>
-                <input type="text" id="paletteNameInput" placeholder="es. Blazer Riviera & Terracotta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+                <label class="eyebrow block mb-1.5">Nome</label>
+                <input type="text" id="paletteNameInput" placeholder="es. Blazer Riviera & Terracotta" onkeydown="if(event.key==='Enter') confirmSavePalette()" class="field">
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeSaveModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="confirmSavePalette()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Outfit</button>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeSaveModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmSavePalette()" class="btn btn-primary px-4 py-2 text-xs">Salva</button>
             </div>
         </div>
     </div>
 
-
     <!-- Modal: Rinomina Palette -->
-    <div id="renameModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-pen text-amber-500"></i> Rinomina Combinazione
-                </h3>
-                <button onclick="closeRenameModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <div id="renameModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg text-navy">Rinomina combinazione</h3>
+                <button onclick="closeRenameModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
+            <div class="rule-brass"></div>
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Nuovo nome:</label>
-                <input type="text" id="renameNameInput" placeholder="es. Blazer Riviera & Terracotta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+                <label class="eyebrow block mb-1.5">Nuovo nome</label>
+                <input type="text" id="renameNameInput" placeholder="es. Blazer Riviera & Terracotta" onkeydown="if(event.key==='Enter') confirmRenamePalette()" class="field">
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeRenameModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="confirmRenamePalette()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Nome</button>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeRenameModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmRenamePalette()" class="btn btn-primary px-4 py-2 text-xs">Salva nome</button>
             </div>
         </div>
     </div>
 
     <!-- Modal: Rinomina Capo da Acquistare -->
-    <div id="renameShoppingModal" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-pen text-amber-500"></i> Rinomina Capo da Acquistare
-                </h3>
-                <button onclick="closeRenameShoppingModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <div id="renameShoppingModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg text-navy">Rinomina capo</h3>
+                <button onclick="closeRenameShoppingModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
+            <div class="rule-brass"></div>
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Nome del capo:</label>
-                <input type="text" id="renameShoppingNameInput" placeholder="es. Blazer Cognac" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+                <label class="eyebrow block mb-1.5">Nome del capo</label>
+                <input type="text" id="renameShoppingNameInput" placeholder="es. Blazer Cognac" onkeydown="if(event.key==='Enter') confirmRenameShoppingItem()" class="field">
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeRenameShoppingModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="confirmRenameShoppingItem()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Nome</button>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeRenameShoppingModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmRenameShoppingItem()" class="btn btn-primary px-4 py-2 text-xs">Salva nome</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Aggiungi Capo al Guardaroba -->
-    <div id="addGarmentModal" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 id="addGarmentModalTitle" class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-amber-500"></i> Aggiungi Capo al Guardaroba
-                </h3>
-                <button onclick="closeAddGarmentModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <!-- Modal: Aggiungi / Modifica Capo -->
+    <div id="addGarmentModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 id="addGarmentModalTitle" class="font-display text-lg text-navy">Aggiungi capo</h3>
+                <button onclick="closeAddGarmentModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="rule-brass"></div>
+            <div>
+                <label class="eyebrow block mb-1.5">Tipo di capo</label>
+                <select id="addGarmentLayerSelect" onchange="updateAddGarmentTwoToneVisibility()" class="field cursor-pointer"></select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Tipo di capo:</label>
-                <select id="addGarmentLayerSelect" onchange="updateAddGarmentTwoToneVisibility()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
-                    <!-- Iniettato via JS -->
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Colore:</label>
+                <label class="eyebrow block mb-1.5">Colore</label>
                 <div class="flex items-center gap-3">
-                    <input type="color" id="addGarmentColorInput" value="#0A1128" onchange="document.getElementById('addGarmentColorHex').innerText = this.value.toUpperCase()" class="w-12 h-10 rounded-lg border border-slate-800 bg-slate-950 cursor-pointer p-0.5">
-                    <span id="addGarmentColorHex" class="font-mono text-xs text-slate-400">#0A1128</span>
+                    <input type="color" id="addGarmentColorInput" value="#0A1128" onchange="document.getElementById('addGarmentColorHex').innerText = this.value.toUpperCase()" class="w-12 h-11 rounded-xl cursor-pointer p-1" style="border:1px solid var(--line); background:#fff;">
+                    <span id="addGarmentColorHex" class="font-mono-p text-xs text-muted">#0A1128</span>
                 </div>
             </div>
-            <div id="addGarmentTwoToneSection" class="hidden space-y-2">
-                <label class="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
-                    <input type="checkbox" id="addGarmentTwoToneCheckbox" onchange="toggleAddGarmentTwoTone()" class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500 focus:ring-offset-0">
+            <div id="addGarmentTwoToneSection" class="hidden space-y-2.5">
+                <label class="flex items-center gap-2.5 text-sm cursor-pointer select-none">
+                    <input type="checkbox" id="addGarmentTwoToneCheckbox" onchange="toggleAddGarmentTwoTone()" class="w-4 h-4 rounded cursor-pointer" style="accent-color: var(--brass);">
                     Capo a due colori
                 </label>
                 <div id="addGarmentHex2Row" class="hidden items-center gap-3">
-                    <input type="color" id="addGarmentColor2Input" value="#FFFFFF" onchange="document.getElementById('addGarmentColor2Hex').innerText = this.value.toUpperCase()" class="w-12 h-10 rounded-lg border border-slate-800 bg-slate-950 cursor-pointer p-0.5">
-                    <span id="addGarmentColor2Hex" class="font-mono text-xs text-slate-400">#FFFFFF</span>
-                    <span class="text-[11px] text-slate-500">Secondo colore</span>
+                    <input type="color" id="addGarmentColor2Input" value="#FFFFFF" onchange="document.getElementById('addGarmentColor2Hex').innerText = this.value.toUpperCase()" class="w-12 h-11 rounded-xl cursor-pointer p-1" style="border:1px solid var(--line); background:#fff;">
+                    <span id="addGarmentColor2Hex" class="font-mono-p text-xs text-muted">#FFFFFF</span>
+                    <span class="text-xs text-muted">Secondo colore</span>
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Nome del capo:</label>
-                <input type="text" id="addGarmentNameInput" placeholder="es. Blazer Cognac" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+                <label class="eyebrow block mb-1.5">Nome del capo</label>
+                <input type="text" id="addGarmentNameInput" placeholder="es. Blazer Cognac" class="field">
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeAddGarmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button id="addGarmentSubmitButton" onclick="confirmAddGarment()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Aggiungi Capo</button>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeAddGarmentModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button id="addGarmentSubmitButton" onclick="confirmAddGarment()" class="btn btn-primary px-4 py-2 text-xs">Aggiungi capo</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Salva Capo nel Guardaroba -->
-    <div id="saveGarmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-bookmark text-amber-500"></i> Salva Capo — <span id="saveGarmentModalLabel"></span>
-                </h3>
-                <button onclick="closeSaveGarmentModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <!-- Modal: Salva Capo dal builder -->
+    <div id="saveGarmentModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display text-lg text-navy">Salva capo — <span id="saveGarmentModalLabel" class="text-muted text-base"></span></h3>
+                <button onclick="closeSaveGarmentModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
+            <div class="rule-brass"></div>
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Nome del capo:</label>
-                <input type="text" id="garmentNameInput" placeholder="es. Blazer Cognac" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+                <label class="eyebrow block mb-1.5">Nome del capo</label>
+                <input type="text" id="garmentNameInput" placeholder="es. Blazer Cognac" onkeydown="if(event.key==='Enter') confirmSaveGarment()" class="field">
             </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeSaveGarmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="confirmSaveGarment()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Capo</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Carica Capo dal Guardaroba -->
-    <div id="loadGarmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 id="loadGarmentModalTitle" class="font-serif-title text-base text-amber-200 flex items-center gap-2">
-                    <i class="fa-solid fa-shirt text-amber-500"></i> Carica Capo
-                </h3>
-                <button onclick="closeLoadGarmentModal()" class="text-slate-400 hover:text-slate-100 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div id="loadGarmentList" class="space-y-2 max-h-80 overflow-y-auto">
-                <!-- Injected via JS -->
-            </div>
-            <div class="flex justify-end pt-2">
-                <button onclick="closeLoadGarmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Chiudi</button>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeSaveGarmentModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmSaveGarment()" class="btn btn-primary px-4 py-2 text-xs">Salva capo</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Conferma Generica (Eliminazione / Sovrascrittura) -->
-    <div id="confirmActionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
-            <div id="confirmActionIcon" class="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl">
+    <!-- Modal: Carica Capo -->
+    <div id="loadGarmentModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 id="loadGarmentModalTitle" class="font-display text-lg text-navy">Carica capo</h3>
+                <button onclick="closeLoadGarmentModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="rule-brass"></div>
+            <div id="loadGarmentList" class="space-y-2 max-h-80 overflow-y-auto -mx-1 px-1">
+                <!-- Generate via JS -->
+            </div>
+            <div class="flex justify-end pt-1">
+                <button onclick="closeLoadGarmentModal()" class="btn btn-ghost px-4 py-2 text-xs">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Conferma Generica -->
+    <div id="confirmActionModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4 text-center" style="max-width: 23rem;">
+            <div id="confirmActionIcon" class="w-12 h-12 rounded-full flex items-center justify-center mx-auto" style="background: rgba(140,47,57,.08); color:#8C2F39;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h3 id="confirmActionTitle" class="font-serif-title text-base text-slate-100">Confermi l'azione?</h3>
-                <p id="confirmActionMessage" class="text-xs text-slate-400 mt-1"></p>
+                <h3 id="confirmActionTitle" class="font-display text-lg text-navy">Confermi l'azione?</h3>
+                <p id="confirmActionMessage" class="text-sm text-muted mt-1.5"></p>
             </div>
-            <div class="flex justify-center gap-2 pt-2">
-                <button onclick="closeConfirmActionModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button id="confirmActionButton" onclick="executeConfirmAction()" class="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-md">Conferma</button>
+            <div class="flex justify-center gap-2 pt-1">
+                <button onclick="closeConfirmActionModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button id="confirmActionButton" onclick="executeConfirmAction()" class="btn px-4 py-2 text-xs text-white" style="background:#8C2F39;">Conferma</button>
             </div>
         </div>
     </div>
 
     <!-- Modal: Conferma Svuota -->
-    <div id="confirmClearModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
-            <div class="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl">
+    <div id="confirmClearModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4 text-center" style="max-width: 23rem;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto" style="background: rgba(140,47,57,.08); color:#8C2F39;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h3 class="font-serif-title text-base text-slate-100">Svuotare il guardaroba?</h3>
-                <p class="text-xs text-slate-400 mt-1">Questa azione cancellerà definitivamente tutte le palette e i capi salvati sul tuo account.</p>
+                <h3 class="font-display text-lg text-navy">Svuotare il guardaroba?</h3>
+                <p class="text-sm text-muted mt-1.5">Cancellerà definitivamente tutte le palette e i capi salvati sul tuo account.</p>
             </div>
-            <div class="flex justify-center gap-2 pt-2">
-                <button onclick="closeConfirmClearModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
-                <button onclick="confirmClearWardrobe()" class="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-md">Svuota Tutto</button>
+            <div class="flex justify-center gap-2 pt-1">
+                <button onclick="closeConfirmClearModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
+                <button onclick="confirmClearWardrobe()" class="btn px-4 py-2 text-xs text-white" style="background:#8C2F39;">Svuota tutto</button>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-600">
-        <p>SPREZZATO &bull; L'Arte dello Spezzato Sartoriale Maschile</p>
+    <footer class="mt-16 py-10 text-center">
+        <div class="rule-brass max-w-xs mx-auto mb-5"></div>
+        <p class="eyebrow">Sprezzato — L'arte dello spezzato</p>
     </footer>
 
     </div>
     <!-- /App Shell -->
 
-    <!-- Toast Notification UI -->
-    <div id="toastNotification" class="fixed bottom-5 right-5 px-4 py-3 rounded-xl bg-amber-500 text-slate-950 font-semibold text-xs shadow-xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
-        <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMessage">Operazione completata!</span>
+    <!-- Toast -->
+    <div id="toastNotification" class="toast">
+        <i class="fa-solid fa-check" style="color: var(--brass-light);"></i>
+        <span id="toastMessage">Operazione completata</span>
     </div>
 
     <script>
@@ -551,7 +798,9 @@
             savedGarments: [],
             sortKey: 'recent',
             shoppingListItems: [],
-            shoppingItemNames: {}
+            shoppingItemNames: {},
+            paletteSearch: '',
+            garmentSearch: ''
         };
 
         const layerCatalogLabels = ['01. Pantalone', '02. Camicia', '03. Giacca', '04. Scarpe & Accessori'];
@@ -756,7 +1005,19 @@
         function switchTab(tab) {
             ['builder', 'palettes', 'garments', 'shopping'].forEach(t => {
                 const panel = document.getElementById('panel-' + t);
-                if (panel) panel.classList.toggle('hidden', t !== tab);
+                if (!panel) return;
+                const isActive = t === tab;
+                panel.classList.toggle('hidden', !isActive);
+
+                // Rilancia l'animazione d'ingresso ogni volta che il pannello torna visibile.
+                if (isActive) {
+                    const inner = panel.querySelector('.panel-enter');
+                    if (inner) {
+                        inner.style.animation = 'none';
+                        void inner.offsetWidth;
+                        inner.style.animation = '';
+                    }
+                }
             });
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.tab === tab);
@@ -856,16 +1117,6 @@
             g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
             b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
             return `#${r}${g}${b}`.toUpperCase();
-        }
-
-        function getContrastYIQ(hexcolor) {
-            hexcolor = hexcolor.replace('#', '');
-            if (hexcolor.length === 3) hexcolor = hexcolor.split('').map(c => c + c).join('');
-            const r = parseInt(hexcolor.substr(0, 2), 16);
-            const g = parseInt(hexcolor.substr(2, 2), 16);
-            const b = parseInt(hexcolor.substr(4, 2), 16);
-            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-            return (yiq >= 128) ? 'text-slate-900' : 'text-slate-100';
         }
 
         function generateSartorialName(hex, layerIndex) {
@@ -973,31 +1224,29 @@
             container.innerHTML = '';
 
             state.palette.forEach((p, idx) => {
-                const card = document.createElement('div');
-                card.className = "p-3.5 rounded-2xl shadow-xl border border-white/10 backdrop-blur-md flex items-center justify-between transition-all duration-300 hover:scale-[1.02]";
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-3 rise';
+                row.style.animationDelay = `${idx * 60}ms`;
 
-                if (p.isTwoTone && p.hex2) {
-                    card.style.background = `linear-gradient(135deg, ${p.hex} 50%, ${p.hex2} 50%)`;
-                } else {
-                    card.style.backgroundColor = p.hex;
-                }
+                const swatchStyle = (p.isTwoTone && p.hex2)
+                    ? `background: linear-gradient(135deg, ${p.hex} 50%, ${p.hex2} 50%)`
+                    : `background-color: ${p.hex}`;
 
-                const textColorClass = getContrastYIQ(p.hex);
                 const hexDisplay = (p.isTwoTone && p.hex2) ? `${p.hex} / ${p.hex2}` : p.hex;
                 const owned = isLayerOwned(idx, p);
 
-                card.innerHTML = `
-                    <div class="${textColorClass}">
-                        <div class="text-[10px] uppercase font-mono tracking-widest opacity-75">${p.layer}</div>
-                        <div class="font-bold text-sm tracking-wide">${p.name}</div>
-                        <div class="text-[11px] font-mono opacity-80 mt-0.5">${hexDisplay}</div>
-                    </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        ${!owned ? `<span class="text-[10px] bg-red-500 text-white px-1.5 py-1.5 rounded-md leading-none" title="Da acquistare"><i class="fa-solid fa-cart-shopping"></i></span>` : ''}
-                        <span class="text-xs font-bold font-mono opacity-60 bg-black/20 px-2 py-1 rounded-md">0${idx + 1}</span>
+                row.innerHTML = `
+                    <div class="swatch w-14 h-14 shrink-0" style="${swatchStyle}"></div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="eyebrow">${p.layer}</span>
+                            ${!owned ? `<i class="fa-solid fa-bag-shopping text-[10px]" style="color:#8C2F39;" title="Da acquistare"></i>` : ''}
+                        </div>
+                        <div class="font-medium text-sm text-ink truncate mt-0.5">${p.name}</div>
+                        <div class="font-mono-p text-[11px] text-muted truncate">${hexDisplay}</div>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(row);
             });
         }
 
@@ -1007,74 +1256,66 @@
 
             state.palette.forEach((item, idx) => {
                 const layerCard = document.createElement('div');
-                layerCard.className = 'bg-slate-900/80 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition space-y-3';
-                
+                layerCard.className = 'card card-hover p-4 rise';
+                layerCard.style.animationDelay = `${idx * 70}ms`;
+
                 const supportsTwoTone = idx === 1 || idx === 2; // 02. Camicia, 03. Giacca
                 const isTwoTone = !!item.isTwoTone;
 
-                let swatchStyle = (isTwoTone && item.hex2)
+                const swatchStyle = (isTwoTone && item.hex2)
                     ? `background: linear-gradient(135deg, ${item.hex} 50%, ${item.hex2} 50%)`
                     : `background-color: ${item.hex}`;
 
                 const hexDisplay = (isTwoTone && item.hex2) ? `${item.hex} / ${item.hex2}` : item.hex;
 
                 layerCard.innerHTML = `
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div id="layerSwatch-${idx}" class="w-10 h-10 rounded-xl border border-white/20 shadow-md flex items-center justify-center font-bold text-xs shrink-0" style="${swatchStyle}">
-                                <span class="bg-black/30 text-white px-1.5 py-0.5 rounded text-[10px]">0${idx + 1}</span>
+                    <div class="flex items-start gap-3.5">
+                        <div id="layerSwatch-${idx}" class="swatch w-14 h-14 shrink-0" style="${swatchStyle}"></div>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="eyebrow">${item.layer}</span>
+                                <span id="layerOwnBadge-${idx}">${!isLayerOwned(idx, item) ? `
+                                    <span class="pill-buy"><i class="fa-solid fa-bag-shopping text-[9px]"></i> Da acquistare</span>
+                                ` : ''}</span>
                             </div>
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider truncate">${item.layer}</h4>
-                                    ${supportsTwoTone ? `
-                                        <button onclick="toggleTwoTone(${idx})" class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${isTwoTone ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'}">
-                                            ${isTwoTone ? '2 Colori' : 'Tinta Unita'}
-                                        </button>
-                                    ` : ''}
-                                    <span id="layerOwnBadge-${idx}">${!isLayerOwned(idx, item) ? `
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1">
-                                            <i class="fa-solid fa-cart-shopping"></i> Da acquistare
-                                        </span>
-                                    ` : ''}</span>
-                                </div>
-                                <div id="layerName-${idx}" class="font-semibold text-sm text-slate-100 truncate">${item.name}</div>
-                                <div class="text-[11px] text-slate-400 truncate">${item.note}</div>
-                            </div>
+                            <div id="layerName-${idx}" class="font-display text-lg text-navy leading-tight mt-0.5 truncate">${item.name}</div>
+                            <div id="layerHexDisplay-${idx}" class="font-mono-p text-[11px] text-muted mt-0.5">${hexDisplay}</div>
                         </div>
                     </div>
 
-                    <!-- Controls Row -->
-                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/60 flex-wrap">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <label class="relative px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-eye-dropper text-amber-400"></i>
-                                <span>${isTwoTone ? 'Base' : 'Colore'}</span>
+                    <div class="flex items-center justify-between gap-2 mt-3.5 pt-3.5 flex-wrap" style="border-top:1px solid var(--line);">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <label class="btn-icon relative" title="Scegli il colore">
+                                <i class="fa-solid fa-eye-dropper text-xs"></i>
                                 <input type="color" value="${item.hex}" onchange="updateLayerColor(${idx}, 1, this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                             </label>
 
                             ${isTwoTone ? `
-                                <label class="relative px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-eye-dropper text-amber-400"></i>
-                                    <span>Colore 2</span>
+                                <label class="btn-icon relative" title="Secondo colore">
+                                    <i class="fa-solid fa-eye-dropper text-xs" style="opacity:.55"></i>
                                     <input type="color" value="${item.hex2 || '#FFFFFF'}" onchange="updateLayerColor(${idx}, 2, this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </label>
                             ` : ''}
 
-                            <button onclick="randomizeLayer(${idx})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs" title="Randomizza solo questo capo">
-                                <i class="fa-solid fa-dice"></i>
+                            <button onclick="randomizeLayer(${idx})" class="btn-icon" title="Colore casuale per questo capo">
+                                <i class="fa-solid fa-shuffle text-xs"></i>
                             </button>
-                            <button onclick="openSaveGarmentModal(${idx})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs" title="Salva questo capo nel guardaroba">
-                                <i class="fa-solid fa-bookmark"></i>
+                            <button onclick="openLoadGarmentModal(${idx})" class="btn-icon" title="Usa un capo del guardaroba">
+                                <i class="fa-solid fa-vest text-xs"></i>
                             </button>
-                            <button onclick="openLoadGarmentModal(${idx})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs" title="Carica un capo salvato">
-                                <i class="fa-solid fa-shirt"></i>
+                            <button onclick="openSaveGarmentModal(${idx})" class="btn-icon" title="Salva questo capo nel guardaroba">
+                                <i class="fa-regular fa-bookmark text-xs"></i>
                             </button>
                         </div>
 
-                        <div id="layerHexDisplay-${idx}" class="font-mono text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
-                            ${hexDisplay}
-                        </div>
+                        ${supportsTwoTone ? `
+                            <button onclick="toggleTwoTone(${idx})" class="btn px-2.5 py-1 text-[10px] font-semibold rounded-full" style="${isTwoTone
+                                ? 'background: rgba(184,145,42,.14); color:#8A6D1C; border:1px solid rgba(184,145,42,.35);'
+                                : 'background:#fff; color: var(--muted); border:1px solid var(--line);'}">
+                                ${isTwoTone ? 'Due colori' : 'Tinta unita'}
+                            </button>
+                        ` : ''}
                     </div>
                 `;
                 container.appendChild(layerCard);
@@ -1104,9 +1345,7 @@
             const badgeWrap = document.getElementById(`layerOwnBadge-${idx}`);
             if (badgeWrap) {
                 badgeWrap.innerHTML = !isLayerOwned(idx, item) ? `
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1">
-                        <i class="fa-solid fa-cart-shopping"></i> Da acquistare
-                    </span>
+                    <span class="pill-buy"><i class="fa-solid fa-bag-shopping text-[9px]"></i> Da acquistare</span>
                 ` : '';
             }
         }
@@ -1143,17 +1382,6 @@
             state.palette[index].name = generateSartorialName(randomHex, index);
             renderMoodboard();
             renderSartorialLayers();
-        }
-
-        function changeMoodboardBg(type) {
-            const canvas = document.getElementById('moodboardCanvas');
-            if (type === 'riviera') {
-                canvas.style.backgroundImage = `linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.85)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80')`;
-            } else if (type === 'linen') {
-                canvas.style.backgroundImage = `linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9)), url('https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=800&q=80')`;
-            } else {
-                canvas.style.backgroundImage = 'none';
-            }
         }
 
         function openSaveModal() {
@@ -1230,7 +1458,20 @@
         }
 
         function getSortedSavedPalettes() {
-            const list = [...state.savedPalettes];
+            const query = (state.paletteSearch || '').trim().toLowerCase();
+            let list = [...state.savedPalettes];
+
+            if (query) {
+                list = list.filter(p => {
+                    if (p.name && p.name.toLowerCase().includes(query)) return true;
+                    if (p.harmonyMode && p.harmonyMode.toLowerCase().includes(query)) return true;
+                    return Array.isArray(p.palette) && p.palette.some(item =>
+                        (item.name && item.name.toLowerCase().includes(query)) ||
+                        (item.hex && item.hex.toLowerCase().includes(query))
+                    );
+                });
+            }
+
             const key = state.sortKey || 'recent';
             const layerIndex = key === 'pants' ? 0 : key === 'shirt' ? 1 : key === 'jacket' ? 2 : -1;
 
@@ -1254,56 +1495,77 @@
             renderSavedPalettes();
         }
 
+        function setPaletteSearch(value) {
+            state.paletteSearch = value;
+            renderSavedPalettes();
+        }
+
+        function emptyState(icon, title, subtitle) {
+            return `
+                <div class="col-span-full py-14 text-center rounded-2xl" style="border:1px dashed var(--line);">
+                    <i class="fa-solid ${icon} text-2xl mb-3" style="color: var(--line);"></i>
+                    <p class="font-display text-lg text-navy">${title}</p>
+                    <p class="text-sm text-muted mt-1 max-w-xs mx-auto">${subtitle}</p>
+                </div>
+            `;
+        }
+
         function renderSavedPalettes() {
             const grid = document.getElementById('savedPalettesGrid');
             grid.innerHTML = '';
 
             if (state.savedPalettes.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
-                        <i class="fa-solid fa-folder-open text-2xl mb-2 opacity-50"></i>
-                        <p class="text-xs">Nessuna palette salvata nel guardaroba.</p>
-                        <p class="text-[11px] text-slate-600">Clicca su "Salva Palette" in alto per conservare le tue combinazioni preferite.</p>
-                    </div>
-                `;
+                grid.innerHTML = emptyState('fa-layer-group', 'Nessuna combinazione', 'Crea un abbinamento nella scheda Crea e salvalo per ritrovarlo qui.');
                 return;
             }
 
-            getSortedSavedPalettes().forEach(item => {
-                const card = document.createElement('div');
-                card.className = "bg-slate-900/90 border border-slate-800 rounded-2xl p-4 hover:border-slate-700 transition flex flex-col justify-between gap-3 space-y-2";
-                
-                let swatchesHtml = `<div class="flex h-6 rounded-lg overflow-hidden border border-white/10">`;
-                item.palette.forEach((p) => {
-                    const bg = (p.isTwoTone && p.hex2) 
+            const list = getSortedSavedPalettes();
+
+            if (list.length === 0) {
+                grid.innerHTML = emptyState('fa-magnifying-glass', 'Nessun risultato', 'Prova con un altro nome, colore o tipo di armonia.');
+                return;
+            }
+
+            list.forEach(item => {
+                const card = document.createElement('article');
+                card.className = 'card card-hover overflow-hidden flex flex-col cursor-pointer group';
+                card.onclick = (e) => {
+                    if (e.target.closest('button')) return;
+                    loadSavedPalette(item.id);
+                };
+
+                const bars = (item.palette || []).map(p => {
+                    const bg = (p.isTwoTone && p.hex2)
                         ? `background: linear-gradient(135deg, ${p.hex} 50%, ${p.hex2} 50%)`
                         : `background-color: ${p.hex}`;
-                    swatchesHtml += `<div class="flex-1" style="${bg}" title="${p.layer}: ${p.hex}"></div>`;
-                });
-                swatchesHtml += `</div>`;
+                    return `<span style="${bg}" title="${p.layer}: ${p.hex}"></span>`;
+                }).join('');
+
+                const missing = (item.palette || []).filter((p, i) => !isLayerOwned(i, p)).length;
 
                 card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-1">
-                            <h4 class="font-bold text-sm text-amber-200 truncate">${item.name}</h4>
-                            <span class="text-[10px] font-mono text-slate-500">${item.date}</span>
-                        </div>
-                        <span class="text-[10px] text-slate-400 block">${item.harmonyMode}</span>
+                    <div class="p-3 pb-0">
+                        <div class="colorbar">${bars}</div>
                     </div>
+                    <div class="p-4 pt-3.5 flex-1 flex flex-col">
+                        <h4 class="font-display text-lg text-navy leading-snug truncate">${item.name}</h4>
+                        <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <span class="eyebrow">${item.harmonyMode || ''}</span>
+                            ${missing > 0
+                                ? `<span class="pill-buy"><i class="fa-solid fa-bag-shopping text-[9px]"></i> ${missing} da comprare</span>`
+                                : `<span class="pill-own"><i class="fa-solid fa-check text-[9px]"></i> completo</span>`}
+                        </div>
 
-                    ${swatchesHtml}
-
-                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
-                        <button onclick="loadSavedPalette('${item.id}')" class="px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-arrow-rotate-left"></i> Carica
-                        </button>
-                        <div class="flex items-center gap-2">
-                            <button onclick="openRenameModal('${item.id}')" class="p-1 text-slate-500 hover:text-amber-400 transition" title="Rinomina">
-                                <i class="fa-solid fa-pen text-xs"></i>
-                            </button>
-                            <button onclick="openDeletePaletteConfirm('${item.id}')" class="p-1 text-slate-500 hover:text-red-400 transition" title="Elimina">
-                                <i class="fa-solid fa-trash text-xs"></i>
-                            </button>
+                        <div class="flex items-center justify-between gap-2 mt-3.5 pt-3" style="border-top:1px solid var(--line);">
+                            <span class="font-mono-p text-[10px] text-muted">${item.date || ''}</span>
+                            <div class="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <button onclick="event.stopPropagation(); openRenameModal('${item.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Rinomina" aria-label="Rinomina">
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); openDeletePaletteConfirm('${item.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Elimina" aria-label="Elimina">
+                                    <i class="fa-regular fa-trash-can text-[11px]"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1456,8 +1718,8 @@
 
         function openAddGarmentModal() {
             pendingEditGarmentId = null;
-            document.getElementById('addGarmentModalTitle').innerHTML = '<i class="fa-solid fa-plus text-amber-500"></i> Aggiungi Capo al Guardaroba';
-            document.getElementById('addGarmentSubmitButton').innerText = 'Aggiungi Capo';
+            document.getElementById('addGarmentModalTitle').innerText = 'Aggiungi capo';
+            document.getElementById('addGarmentSubmitButton').innerText = 'Aggiungi capo';
             const select = document.getElementById('addGarmentLayerSelect');
             select.innerHTML = layerCatalogLabels.map((label, idx) => `<option value="${idx}">${label}</option>`).join('');
             document.getElementById('addGarmentColorInput').value = '#0A1128';
@@ -1474,8 +1736,8 @@
             const garment = state.savedGarments.find(g => g.id === id);
             if (!garment) return;
             pendingEditGarmentId = id;
-            document.getElementById('addGarmentModalTitle').innerHTML = '<i class="fa-solid fa-pen text-amber-500"></i> Modifica Capo';
-            document.getElementById('addGarmentSubmitButton').innerText = 'Salva Modifiche';
+            document.getElementById('addGarmentModalTitle').innerText = 'Modifica capo';
+            document.getElementById('addGarmentSubmitButton').innerText = 'Salva modifiche';
             const select = document.getElementById('addGarmentLayerSelect');
             select.innerHTML = layerCatalogLabels.map((label, idx) => `<option value="${idx}">${label}</option>`).join('');
             select.value = garment.layerIndex;
@@ -1623,7 +1885,7 @@
             const items = state.savedGarments.filter(g => g.layerIndex === layerIndex);
 
             if (items.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Nessun capo salvato per questo livello.</p>`;
+                container.innerHTML = `<p class="text-sm text-muted text-center py-6">Nessun capo salvato per questa categoria.</p>`;
                 return;
             }
 
@@ -1633,16 +1895,16 @@
                     : `background-color: ${g.hex}`;
                 const hexDisplay = (g.isTwoTone && g.hex2) ? `${g.hex} / ${g.hex2}` : g.hex;
                 return `
-                    <div class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2.5">
-                        <button onclick="applyGarment('${g.id}')" class="flex items-center gap-2.5 min-w-0 flex-1 text-left">
-                            <span class="w-8 h-8 rounded-lg border border-white/20 shrink-0" style="${swatchStyle}"></span>
+                    <div class="flex items-center gap-2 rounded-xl p-2" style="border:1px solid var(--line); background:#fff;">
+                        <button onclick="applyGarment('${g.id}')" class="flex items-center gap-3 min-w-0 flex-1 text-left">
+                            <span class="swatch w-10 h-10 shrink-0" style="${swatchStyle}"></span>
                             <span class="min-w-0">
-                                <span class="block text-xs font-semibold text-slate-100 truncate">${g.name}</span>
-                                <span class="block text-[10px] font-mono text-slate-500 truncate">${hexDisplay}</span>
+                                <span class="block text-sm font-medium text-ink truncate">${g.name}</span>
+                                <span class="block font-mono-p text-[10px] text-muted truncate">${hexDisplay}</span>
                             </span>
                         </button>
-                        <button onclick="deleteGarment('${g.id}')" class="p-1 text-slate-500 hover:text-red-400 transition shrink-0" title="Elimina capo">
-                            <i class="fa-solid fa-trash text-xs"></i>
+                        <button onclick="deleteGarment('${g.id}')" class="btn btn-quiet w-8 h-8 rounded-lg shrink-0" title="Elimina capo" aria-label="Elimina capo">
+                            <i class="fa-regular fa-trash-can text-[11px]"></i>
                         </button>
                     </div>
                 `;
@@ -1665,7 +1927,7 @@
             renderMoodboard();
             renderSartorialLayers();
             closeLoadGarmentModal();
-            showToast(`Capo "${garment.name}" applicato!`);
+            showToast(`"${garment.name}" applicato`);
         }
 
         function deleteGarment(id) {
@@ -1673,12 +1935,12 @@
             if (!garment || !currentUser) return;
             openConfirmActionModal(
                 'Eliminare il capo?',
-                `Stai per eliminare "${garment.name}" dal guardaroba capi.`,
+                `Stai per eliminare "${garment.name}" dal guardaroba.`,
                 async function () {
                     try {
                         const { db, doc, deleteDoc } = window.fb;
                         await deleteDoc(doc(db, 'users', currentUser.uid, 'garments', id));
-                        showToast("Capo eliminato dal guardaroba");
+                        showToast("Capo eliminato");
                     } catch (err) {
                         console.error('Delete garment error:', err);
                         showToast("Errore nell'eliminazione del capo");
@@ -1688,28 +1950,37 @@
             );
         }
 
+        function setGarmentSearch(value) {
+            state.garmentSearch = value;
+            renderGarmentCatalog();
+        }
+
         function renderGarmentCatalog() {
             const container = document.getElementById('garmentCatalog');
             if (!container) return;
             container.innerHTML = '';
 
             if (state.savedGarments.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full py-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
-                        <i class="fa-solid fa-shirt text-2xl mb-2 opacity-50"></i>
-                        <p class="text-xs">Nessun capo salvato nel guardaroba.</p>
-                        <p class="text-[11px] text-slate-600">Usa l'icona segnalibro su ogni livello dell'abbinamento per salvare i capi che possiedi.</p>
-                    </div>
-                `;
+                container.innerHTML = emptyState('fa-vest', 'Guardaroba vuoto', 'Aggiungi i capi che possiedi: le combinazioni ti diranno cosa manca.');
                 return;
             }
 
-            layerCatalogLabels.forEach((label, idx) => {
-                const items = state.savedGarments.filter(g => g.layerIndex === idx);
-                if (items.length === 0) return;
+            const query = (state.garmentSearch || '').trim().toLowerCase();
+            const matches = g =>
+                !query ||
+                (g.name && g.name.toLowerCase().includes(query)) ||
+                (g.hex && g.hex.toLowerCase().includes(query)) ||
+                (g.layerLabel && g.layerLabel.toLowerCase().includes(query));
 
-                const group = document.createElement('div');
-                group.className = 'space-y-2';
+            let shown = 0;
+
+            layerCatalogLabels.forEach((label, idx) => {
+                const items = state.savedGarments.filter(g => g.layerIndex === idx && matches(g));
+                if (items.length === 0) return;
+                shown += items.length;
+
+                const group = document.createElement('section');
+                group.className = 'space-y-3';
 
                 const cardsHtml = items.map(g => {
                     const swatchStyle = (g.isTwoTone && g.hex2)
@@ -1717,18 +1988,18 @@
                         : `background-color: ${g.hex}`;
                     const hexDisplay = (g.isTwoTone && g.hex2) ? `${g.hex} / ${g.hex2}` : g.hex;
                     return `
-                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center gap-3 hover:border-slate-700 transition">
-                            <span class="w-10 h-10 rounded-lg border border-white/20 shrink-0" style="${swatchStyle}"></span>
+                        <div class="card card-hover p-3 flex items-center gap-3 group">
+                            <span class="swatch w-12 h-12 shrink-0" style="${swatchStyle}"></span>
                             <div class="min-w-0 flex-1">
-                                <div class="text-sm font-semibold text-slate-100 truncate">${g.name}</div>
-                                <div class="text-[11px] font-mono text-slate-500 truncate">${hexDisplay}</div>
+                                <div class="text-sm font-medium text-ink truncate">${g.name}</div>
+                                <div class="font-mono-p text-[11px] text-muted truncate">${hexDisplay}</div>
                             </div>
-                            <div class="flex items-center gap-1 shrink-0">
-                                <button onclick="openEditGarmentModal('${g.id}')" class="p-1 text-slate-500 hover:text-amber-400 transition" title="Modifica capo">
-                                    <i class="fa-solid fa-pen text-xs"></i>
+                            <div class="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <button onclick="openEditGarmentModal('${g.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Modifica" aria-label="Modifica">
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
                                 </button>
-                                <button onclick="deleteGarment('${g.id}')" class="p-1 text-slate-500 hover:text-red-400 transition" title="Elimina capo">
-                                    <i class="fa-solid fa-trash text-xs"></i>
+                                <button onclick="deleteGarment('${g.id}')" class="btn btn-quiet w-8 h-8 rounded-lg" title="Elimina" aria-label="Elimina">
+                                    <i class="fa-regular fa-trash-can text-[11px]"></i>
                                 </button>
                             </div>
                         </div>
@@ -1736,11 +2007,18 @@
                 }).join('');
 
                 group.innerHTML = `
-                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">${label} <span class="text-slate-500 font-normal normal-case">(${items.length})</span></h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${cardsHtml}</div>
+                    <div class="flex items-baseline gap-2.5">
+                        <h3 class="eyebrow">${label}</h3>
+                        <span class="font-mono-p text-[10px] text-muted">${items.length}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 stagger">${cardsHtml}</div>
                 `;
                 container.appendChild(group);
             });
+
+            if (shown === 0) {
+                container.innerHTML = emptyState('fa-magnifying-glass', 'Nessun capo trovato', 'Prova con un altro nome, colore o categoria.');
+            }
         }
 
         function getShoppingListItems() {
@@ -1779,13 +2057,7 @@
             updateTabBadges();
 
             if (items.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full py-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-2xl">
-                        <i class="fa-solid fa-champagne-glasses text-2xl mb-2 opacity-50"></i>
-                        <p class="text-xs">Hai già tutto quello che serve!</p>
-                        <p class="text-[11px] text-slate-600">Ogni colore usato nelle tue combinazioni salvate è presente nel guardaroba capi.</p>
-                    </div>
-                `;
+                container.innerHTML = emptyState('fa-champagne-glasses', 'Non ti manca nulla', 'Ogni colore delle tue combinazioni salvate è già nel guardaroba.');
                 return;
             }
 
@@ -1795,8 +2067,8 @@
                     .filter(({ it }) => it.layerIndex === idx);
                 if (groupEntries.length === 0) return;
 
-                const group = document.createElement('div');
-                group.className = 'space-y-2';
+                const group = document.createElement('section');
+                group.className = 'space-y-3';
 
                 const cardsHtml = groupEntries.map(({ it, i }) => {
                     const swatchStyle = (it.isTwoTone && it.hex2)
@@ -1805,28 +2077,31 @@
                     const hexDisplay = (it.isTwoTone && it.hex2) ? `${it.hex} / ${it.hex2}` : it.hex;
                     const paletteList = it.paletteNames.join(', ');
                     return `
-                        <div class="bg-slate-900/90 border border-red-500/20 rounded-xl p-3 flex items-center gap-3 hover:border-red-500/40 transition">
-                            <span class="w-10 h-10 rounded-lg border border-white/20 shrink-0" style="${swatchStyle}"></span>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-sm font-semibold text-slate-100 truncate">${it.name}</div>
-                                <div class="text-[11px] font-mono text-slate-500 truncate">${hexDisplay}</div>
-                                <div class="text-[10px] text-slate-600 truncate" title="${paletteList}">In: ${paletteList}</div>
-                            </div>
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <button onclick="openRenameShoppingItemModal(${i})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs" title="Rinomina questo capo da acquistare">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="markShoppingItemPurchased(${i})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5" title="Segna come acquistato e aggiungilo al guardaroba capi">
-                                    <i class="fa-solid fa-cart-shopping"></i> Acquista
+                        <div class="card card-hover p-3.5 flex flex-col gap-3" style="border-color: rgba(140,47,57,.22);">
+                            <div class="flex items-center gap-3">
+                                <span class="swatch w-12 h-12 shrink-0" style="${swatchStyle}"></span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-medium text-ink truncate">${it.name}</div>
+                                    <div class="font-mono-p text-[11px] text-muted truncate">${hexDisplay}</div>
+                                </div>
+                                <button onclick="openRenameShoppingItemModal(${i})" class="btn btn-quiet w-8 h-8 rounded-lg shrink-0" title="Rinomina" aria-label="Rinomina">
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
                                 </button>
                             </div>
+                            <p class="text-[11px] text-muted truncate" title="${paletteList}">Serve per: ${paletteList}</p>
+                            <button onclick="markShoppingItemPurchased(${i})" class="btn btn-primary w-full py-2 text-xs" title="Aggiungi al guardaroba capi">
+                                <i class="fa-solid fa-bag-shopping text-[11px]"></i> Acquista
+                            </button>
                         </div>
                     `;
                 }).join('');
 
                 group.innerHTML = `
-                    <h3 class="text-xs font-bold text-red-300 uppercase tracking-widest">${label} <span class="text-slate-500 font-normal normal-case">(${groupEntries.length})</span></h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${cardsHtml}</div>
+                    <div class="flex items-baseline gap-2.5">
+                        <h3 class="eyebrow">${label}</h3>
+                        <span class="font-mono-p text-[10px] text-muted">${groupEntries.length}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 stagger">${cardsHtml}</div>
                 `;
                 container.appendChild(group);
             });
@@ -2043,39 +2318,13 @@
             }
         }
 
-        function copyAllHex() {
-            const hexList = state.palette.map((p) => {
-                const hexVal = (p.isTwoTone && p.hex2) ? `${p.hex} / ${p.hex2}` : p.hex;
-                return `${p.layer}: ${hexVal} (${p.name})`;
-            }).join('\n');
-            copyToClipboard(hexList, 'HEX Palette copiata negli appunti!');
-        }
-
-        function copyToClipboard(text, successMsg = 'Copiato negli appunti!') {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast(successMsg);
-            } catch (err) {
-                showToast('Errore di copiatura');
-            }
-            document.body.removeChild(textarea);
-        }
-
+        let toastTimer = null;
         function showToast(msg) {
             const toast = document.getElementById('toastNotification');
-            const msgEl = document.getElementById('toastMessage');
-            msgEl.innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2500);
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
         }
     </script>
 
