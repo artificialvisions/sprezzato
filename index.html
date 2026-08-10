@@ -180,18 +180,24 @@
 
     <!-- Tab Navigation -->
     <nav class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-16 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 overflow-x-auto">
-            <button onclick="switchTab('builder')" data-tab="builder" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
-                <i class="fa-solid fa-shirt"></i> Crea Outfit
+        <div class="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8 flex items-stretch justify-between sm:justify-start gap-0.5 sm:gap-1">
+            <button onclick="switchTab('builder')" data-tab="builder" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+                <i class="fa-solid fa-shirt"></i>
+                <span class="text-[10px] sm:hidden truncate">Crea</span>
+                <span class="hidden sm:inline">Crea Outfit</span>
             </button>
-            <button onclick="switchTab('palettes')" data-tab="palettes" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
-                <i class="fa-solid fa-box-archive"></i> Palette <span id="paletteCountBadge" class="tab-badge"></span>
+            <button onclick="switchTab('palettes')" data-tab="palettes" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+                <i class="fa-solid fa-box-archive"></i>
+                <span class="flex items-center gap-1 text-[10px] sm:text-sm truncate">Palette <span id="paletteCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
-                <i class="fa-solid fa-vest"></i> Capi <span id="garmentCountBadge" class="tab-badge"></span>
+            <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+                <i class="fa-solid fa-vest"></i>
+                <span class="flex items-center gap-1 text-[10px] sm:text-sm truncate">Capi <span id="garmentCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('shopping')" data-tab="shopping" class="tab-btn px-3.5 sm:px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition flex items-center gap-1.5 shrink-0">
-                <i class="fa-solid fa-cart-shopping"></i> Da Comprare <span id="shoppingCountBadge" class="tab-badge"></span>
+            <button onclick="switchTab('shopping')" data-tab="shopping" class="tab-btn flex-1 sm:flex-none min-w-0 px-1 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="text-[10px] sm:hidden truncate">Compra</span>
+                <span class="hidden sm:flex items-center gap-1">Da Comprare <span id="shoppingCountBadge" class="tab-badge"></span></span>
             </button>
         </div>
     </nav>
@@ -376,6 +382,28 @@
         </div>
     </div>
 
+    <!-- Modal: Rinomina Capo da Acquistare -->
+    <div id="renameShoppingModal" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-serif-title text-base text-amber-200 flex items-center gap-2">
+                    <i class="fa-solid fa-pen text-amber-500"></i> Rinomina Capo da Acquistare
+                </h3>
+                <button onclick="closeRenameShoppingModal()" class="text-slate-400 hover:text-slate-100 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Nome del capo:</label>
+                <input type="text" id="renameShoppingNameInput" placeholder="es. Blazer Cognac" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 font-medium">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeRenameShoppingModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Annulla</button>
+                <button onclick="confirmRenameShoppingItem()" class="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold shadow-md">Salva Nome</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Aggiungi Capo al Guardaroba -->
     <div id="addGarmentModal" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
@@ -403,12 +431,12 @@
             <div id="addGarmentTwoToneSection" class="hidden space-y-2">
                 <label class="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
                     <input type="checkbox" id="addGarmentTwoToneCheckbox" onchange="toggleAddGarmentTwoTone()" class="rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500 focus:ring-offset-0">
-                    Camicia a righe / due colori
+                    Capo a due colori
                 </label>
                 <div id="addGarmentHex2Row" class="hidden items-center gap-3">
                     <input type="color" id="addGarmentColor2Input" value="#FFFFFF" onchange="document.getElementById('addGarmentColor2Hex').innerText = this.value.toUpperCase()" class="w-12 h-10 rounded-lg border border-slate-800 bg-slate-950 cursor-pointer p-0.5">
                     <span id="addGarmentColor2Hex" class="font-mono text-xs text-slate-400">#FFFFFF</span>
-                    <span class="text-[11px] text-slate-500">Colore riga</span>
+                    <span class="text-[11px] text-slate-500">Secondo colore</span>
                 </div>
             </div>
             <div>
@@ -522,7 +550,8 @@
             savedPalettes: [],
             savedGarments: [],
             sortKey: 'recent',
-            shoppingListItems: []
+            shoppingListItems: [],
+            shoppingItemNames: {}
         };
 
         const layerCatalogLabels = ['01. Pantalone', '02. Camicia', '03. Giacca', '04. Scarpe & Accessori'];
@@ -532,10 +561,12 @@
         let pendingSaveGarmentLayerIndex = null;
         let pendingLoadGarmentLayerIndex = null;
         let pendingEditGarmentId = null;
+        let pendingRenameShoppingKey = null;
         let currentUser = null;
         let authMode = 'signin';
         let unsubscribePalettes = null;
         let unsubscribeGarments = null;
+        let unsubscribeShoppingNames = null;
         let loadedPaletteId = null;
 
         // Sartorial Color Names Dictionary
@@ -652,6 +683,7 @@
 
             if (unsubscribePalettes) { unsubscribePalettes(); unsubscribePalettes = null; }
             if (unsubscribeGarments) { unsubscribeGarments(); unsubscribeGarments = null; }
+            if (unsubscribeShoppingNames) { unsubscribeShoppingNames(); unsubscribeShoppingNames = null; }
 
             if (user) {
                 document.getElementById('authScreen').classList.add('hidden');
@@ -670,6 +702,7 @@
                 document.getElementById('authScreen').classList.remove('hidden');
                 state.savedPalettes = [];
                 state.savedGarments = [];
+                state.shoppingItemNames = {};
             }
         }
 
@@ -767,6 +800,19 @@
             }, (err) => {
                 console.error('Garments sync error:', err);
                 showToast("Errore di sincronizzazione capi");
+            });
+
+            const shoppingNamesQuery = collection(db, 'users', uid, 'shoppingItemNames');
+            unsubscribeShoppingNames = onSnapshot(shoppingNamesQuery, (snapshot) => {
+                const map = {};
+                snapshot.docs.forEach(d => {
+                    const data = d.data();
+                    map[data.key] = { id: d.id, name: data.name };
+                });
+                state.shoppingItemNames = map;
+                renderShoppingList();
+            }, (err) => {
+                console.error('Shopping item names sync error:', err);
             });
         }
 
@@ -963,7 +1009,7 @@
                 const layerCard = document.createElement('div');
                 layerCard.className = 'bg-slate-900/80 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition space-y-3';
                 
-                const isShirt = idx === 1; // 02. Camicia
+                const supportsTwoTone = idx === 1 || idx === 2; // 02. Camicia, 03. Giacca
                 const isTwoTone = !!item.isTwoTone;
 
                 let swatchStyle = (isTwoTone && item.hex2)
@@ -981,9 +1027,9 @@
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <h4 class="font-bold text-xs text-amber-400 uppercase tracking-wider truncate">${item.layer}</h4>
-                                    ${isShirt ? `
+                                    ${supportsTwoTone ? `
                                         <button onclick="toggleTwoTone(${idx})" class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${isTwoTone ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'}">
-                                            ${isTwoTone ? '2 Colori (Righe)' : 'Tinta Unita'}
+                                            ${isTwoTone ? '2 Colori' : 'Tinta Unita'}
                                         </button>
                                     ` : ''}
                                     <span id="layerOwnBadge-${idx}">${!isLayerOwned(idx, item) ? `
@@ -1010,7 +1056,7 @@
                             ${isTwoTone ? `
                                 <label class="relative px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-mono border border-slate-700 flex items-center gap-1.5 cursor-pointer">
                                     <i class="fa-solid fa-eye-dropper text-amber-400"></i>
-                                    <span>Riga</span>
+                                    <span>Colore 2</span>
                                     <input type="color" value="${item.hex2 || '#FFFFFF'}" onchange="updateLayerColor(${idx}, 2, this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </label>
                             ` : ''}
@@ -1391,9 +1437,9 @@
 
         function updateAddGarmentTwoToneVisibility() {
             const layerIndex = parseInt(document.getElementById('addGarmentLayerSelect').value, 10);
-            const isShirt = layerIndex === 1;
-            document.getElementById('addGarmentTwoToneSection').classList.toggle('hidden', !isShirt);
-            if (!isShirt) {
+            const supportsTwoTone = layerIndex === 1 || layerIndex === 2;
+            document.getElementById('addGarmentTwoToneSection').classList.toggle('hidden', !supportsTwoTone);
+            if (!supportsTwoTone) {
                 document.getElementById('addGarmentTwoToneCheckbox').checked = false;
                 const row = document.getElementById('addGarmentHex2Row');
                 row.classList.add('hidden');
@@ -1493,7 +1539,7 @@
             const hex = document.getElementById('addGarmentColorInput').value.toUpperCase();
             const nameInput = document.getElementById('addGarmentNameInput').value.trim();
             const name = nameInput || generateSartorialName(hex, layerIndex);
-            const isTwoTone = layerIndex === 1 && document.getElementById('addGarmentTwoToneCheckbox').checked;
+            const isTwoTone = (layerIndex === 1 || layerIndex === 2) && document.getElementById('addGarmentTwoToneCheckbox').checked;
             const hex2 = isTwoTone ? document.getElementById('addGarmentColor2Input').value.toUpperCase() : null;
 
             const buildGarmentData = () => ({
@@ -1705,13 +1751,15 @@
                     if (isLayerOwned(idx, item)) return;
                     const key = `${idx}|${item.hex}|${item.isTwoTone ? (item.hex2 || '') : ''}`;
                     if (!map.has(key)) {
+                        const override = state.shoppingItemNames[key];
                         map.set(key, {
+                            key: key,
                             layerIndex: idx,
                             layerLabel: item.layer,
                             hex: item.hex,
                             hex2: item.hex2 || null,
                             isTwoTone: !!item.isTwoTone,
-                            name: item.name,
+                            name: override ? override.name : item.name,
                             paletteNames: []
                         });
                     }
@@ -1764,9 +1812,14 @@
                                 <div class="text-[11px] font-mono text-slate-500 truncate">${hexDisplay}</div>
                                 <div class="text-[10px] text-slate-600 truncate" title="${paletteList}">In: ${paletteList}</div>
                             </div>
-                            <button onclick="markShoppingItemPurchased(${i})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shrink-0" title="Segna come acquistato e aggiungilo al guardaroba capi">
-                                <i class="fa-solid fa-check"></i> Acquistato
-                            </button>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button onclick="openRenameShoppingItemModal(${i})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs" title="Rinomina questo capo da acquistare">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="markShoppingItemPurchased(${i})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5" title="Segna come acquistato e aggiungilo al guardaroba capi">
+                                    <i class="fa-solid fa-cart-shopping"></i> Acquista
+                                </button>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -1785,7 +1838,7 @@
             if (!item) return;
 
             try {
-                const { db, collection, addDoc, serverTimestamp } = window.fb;
+                const { db, doc, collection, addDoc, deleteDoc, serverTimestamp } = window.fb;
                 await addDoc(collection(db, 'users', currentUser.uid, 'garments'), {
                     layerIndex: item.layerIndex,
                     layerLabel: item.layerLabel,
@@ -1796,10 +1849,55 @@
                     date: new Date().toLocaleDateString('it-IT'),
                     createdAt: serverTimestamp()
                 });
+                const nameOverride = state.shoppingItemNames[item.key];
+                if (nameOverride) {
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', nameOverride.id));
+                }
                 showToast(`"${item.name}" aggiunto al guardaroba capi!`);
             } catch (err) {
                 console.error('Mark purchased error:', err);
                 showToast("Errore nel salvataggio del capo");
+            }
+        }
+
+        function openRenameShoppingItemModal(index) {
+            const item = state.shoppingListItems[index];
+            if (!item) return;
+            pendingRenameShoppingKey = item.key;
+            document.getElementById('renameShoppingNameInput').value = item.name;
+            const modal = document.getElementById('renameShoppingModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeRenameShoppingModal() {
+            const modal = document.getElementById('renameShoppingModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            pendingRenameShoppingKey = null;
+        }
+
+        async function confirmRenameShoppingItem() {
+            if (!currentUser || !pendingRenameShoppingKey) return;
+            const newName = document.getElementById('renameShoppingNameInput').value.trim();
+            if (!newName) return;
+            const key = pendingRenameShoppingKey;
+
+            try {
+                const { db, doc, collection, addDoc, updateDoc, serverTimestamp } = window.fb;
+                const existing = state.shoppingItemNames[key];
+                if (existing) {
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', existing.id), { name: newName });
+                } else {
+                    await addDoc(collection(db, 'users', currentUser.uid, 'shoppingItemNames'), {
+                        key: key,
+                        name: newName,
+                        createdAt: serverTimestamp()
+                    });
+                }
+                closeRenameShoppingModal();
+                showToast("Nome aggiornato!");
+            } catch (err) {
+                console.error('Rename shopping item error:', err);
+                showToast("Errore nel salvataggio del nome");
             }
         }
 
