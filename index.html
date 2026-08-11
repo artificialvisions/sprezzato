@@ -481,24 +481,24 @@
     <!-- Tab Navigation -->
     <nav class="sticky top-16 z-30 border-b" style="border-color: var(--line); background: rgba(253,251,246,.9); backdrop-filter: saturate(180%) blur(12px);">
         <div class="max-w-6xl mx-auto px-2 sm:px-6 flex items-stretch justify-between sm:justify-start sm:gap-2">
-            <button onclick="switchTab('builder')" data-tab="builder" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+            <button onclick="requestTab('builder')" data-tab="builder" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
                 <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
                 <span class="text-[11px] sm:text-sm font-semibold">Crea</span>
             </button>
-            <button onclick="switchTab('palettes')" data-tab="palettes" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+            <button onclick="requestTab('palettes')" data-tab="palettes" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
                 <i class="fa-solid fa-layer-group text-sm"></i>
                 <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Palette <span id="paletteCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('collections')" data-tab="collections" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+            <button onclick="requestTab('collections')" data-tab="collections" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
                 <i class="fa-solid fa-folder text-sm"></i>
                 <span class="text-[11px] sm:hidden font-semibold">Collez.</span>
                 <span class="hidden sm:flex items-center gap-1.5 text-sm font-semibold">Collezioni <span id="collectionCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('garments')" data-tab="garments" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+            <button onclick="requestTab('garments')" data-tab="garments" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
                 <i class="fa-solid fa-vest text-sm"></i>
                 <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Capi <span id="garmentCountBadge" class="tab-badge"></span></span>
             </button>
-            <button onclick="switchTab('shopping')" data-tab="shopping" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+            <button onclick="requestTab('shopping')" data-tab="shopping" class="tab-btn flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
                 <i class="fa-solid fa-bag-shopping text-sm"></i>
                 <span class="text-[11px] sm:text-sm font-semibold flex items-center gap-1.5">Lista <span id="shoppingCountBadge" class="tab-badge"></span></span>
             </button>
@@ -766,7 +766,7 @@
     <div id="renameShoppingModal" class="modal opacity-0 pointer-events-none">
         <div class="modal-panel p-6 space-y-4">
             <div class="flex items-center justify-between">
-                <h3 class="font-display text-lg text-navy">Rinomina capo</h3>
+                <h3 class="font-display text-lg text-navy">Modifica capo da comprare</h3>
                 <button onclick="closeRenameShoppingModal()" class="btn btn-quiet w-8 h-8 rounded-lg" aria-label="Chiudi"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             <div class="rule-brass"></div>
@@ -774,9 +774,52 @@
                 <label class="eyebrow block mb-1.5">Nome del capo</label>
                 <input type="text" id="renameShoppingNameInput" placeholder="es. Blazer Cognac" onkeydown="if(event.key==='Enter') confirmRenameShoppingItem()" class="field">
             </div>
+            <div>
+                <label class="eyebrow block mb-1.5">Colore</label>
+                <div class="flex items-center gap-3">
+                    <input type="color" id="renameShoppingColorInput" value="#0A1128" onchange="document.getElementById('renameShoppingColorHex').innerText = this.value.toUpperCase()" class="w-12 h-11 rounded-xl cursor-pointer p-1" style="border:1px solid var(--line); background:#fff;">
+                    <span id="renameShoppingColorHex" class="font-mono-p text-xs text-muted">#0A1128</span>
+                </div>
+            </div>
+            <div id="renameShoppingTwoToneSection" class="hidden space-y-2.5">
+                <label class="flex items-center gap-2.5 text-sm cursor-pointer select-none">
+                    <input type="checkbox" id="renameShoppingTwoToneCheckbox" onchange="toggleRenameShoppingTwoTone()" class="w-4 h-4 rounded cursor-pointer" style="accent-color: var(--brass);">
+                    Capo a due colori
+                </label>
+                <div id="renameShoppingHex2Row" class="hidden items-center gap-3">
+                    <input type="color" id="renameShoppingColor2Input" value="#FFFFFF" onchange="document.getElementById('renameShoppingColor2Hex').innerText = this.value.toUpperCase()" class="w-12 h-11 rounded-xl cursor-pointer p-1" style="border:1px solid var(--line); background:#fff;">
+                    <span id="renameShoppingColor2Hex" class="font-mono-p text-xs text-muted">#FFFFFF</span>
+                    <span class="text-xs text-muted">Secondo colore</span>
+                </div>
+            </div>
+            <p class="text-[11px] text-muted">Cambiando il colore si aggiornano anche le combinazioni salvate che lo usano.</p>
             <div class="flex justify-end gap-2 pt-1">
                 <button onclick="closeRenameShoppingModal()" class="btn btn-ghost px-4 py-2 text-xs">Annulla</button>
-                <button onclick="confirmRenameShoppingItem()" class="btn btn-primary px-4 py-2 text-xs">Salva nome</button>
+                <button onclick="confirmRenameShoppingItem()" class="btn btn-primary px-4 py-2 text-xs">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Modifiche non salvate -->
+    <div id="unsavedChangesModal" class="modal opacity-0 pointer-events-none">
+        <div class="modal-panel p-6 space-y-4" style="max-width: 24rem;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto" style="background: rgba(184,145,42,.14); color: var(--brass);">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="font-display text-lg text-navy">Modifiche non salvate</h3>
+                <p class="text-sm text-muted mt-1.5">Hai cambiato <strong id="unsavedPaletteName" class="text-ink font-semibold"></strong> senza salvare. Cosa vuoi fare?</p>
+            </div>
+            <div class="space-y-2 pt-1">
+                <button onclick="unsavedUpdateAndContinue()" class="btn btn-primary w-full px-4 py-2.5 text-xs">
+                    <i class="fa-solid fa-check text-[11px]"></i> Aggiorna questa palette
+                </button>
+                <button onclick="unsavedSaveAsAndContinue()" class="btn btn-ghost w-full px-4 py-2.5 text-xs">
+                    <i class="fa-solid fa-plus text-[11px]"></i> Salva come nuova
+                </button>
+                <button onclick="unsavedContinueWithoutSaving()" class="btn btn-quiet w-full px-4 py-2 text-xs">
+                    Continua senza salvare
+                </button>
             </div>
         </div>
     </div>
@@ -920,6 +963,9 @@
         let pendingLoadGarmentLayerIndex = null;
         let pendingEditGarmentId = null;
         let pendingRenameShoppingKey = null;
+        let pendingShoppingItem = null;
+        let pendingTabAfterSave = null;
+        let unsavedGuardDismissedFingerprint = null;
         let pendingCollectionPaletteId = null;
         let pendingRenameCollectionId = null;
         let pendingAddToCollectionId = null;
@@ -1188,6 +1234,71 @@
             } catch (err) {
                 console.error('Layer order migration error:', err);
             }
+        }
+
+        // Confronto solo cio che l'utente vede e puo cambiare, normalizzato:
+        // hex2 conta solo se il capo e a due colori.
+        function paletteFingerprint(palette) {
+            return JSON.stringify((palette || []).map(p => [
+                p.layer || '',
+                (p.hex || '').toUpperCase(),
+                !!p.isTwoTone,
+                p.isTwoTone ? (p.hex2 || '').toUpperCase() : '',
+                p.name || ''
+            ]));
+        }
+
+        function hasUnsavedPaletteChanges() {
+            if (!loadedPaletteId) return false;
+            const saved = state.savedPalettes.find(p => p.id === loadedPaletteId);
+            if (!saved) return false;
+            const current = paletteFingerprint(state.palette);
+            if (current === paletteFingerprint(saved.palette)) return false;
+            // Gia detto "continua" per queste stesse modifiche: non richiedo ogni volta.
+            if (current === unsavedGuardDismissedFingerprint) return false;
+            return true;
+        }
+
+        function requestTab(tab) {
+            if (tab !== 'builder' && hasUnsavedPaletteChanges()) {
+                pendingTabAfterSave = tab;
+                openUnsavedChangesModal();
+                return;
+            }
+            switchTab(tab);
+        }
+
+        function openUnsavedChangesModal() {
+            const saved = state.savedPalettes.find(p => p.id === loadedPaletteId);
+            document.getElementById('unsavedPaletteName').innerText = saved ? saved.name : '';
+            document.getElementById('unsavedChangesModal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeUnsavedChangesModal() {
+            document.getElementById('unsavedChangesModal').classList.add('opacity-0', 'pointer-events-none');
+            pendingTabAfterSave = null;
+        }
+
+        async function unsavedUpdateAndContinue() {
+            const tab = pendingTabAfterSave;
+            closeUnsavedChangesModal();
+            const ok = await persistLoadedPalette();
+            if (ok && tab) switchTab(tab);
+        }
+
+        function unsavedSaveAsAndContinue() {
+            const tab = pendingTabAfterSave;
+            closeUnsavedChangesModal();
+            pendingTabAfterSave = tab;   // ripreso da confirmSavePalette a salvataggio riuscito
+            openSaveAsModal();
+        }
+
+        function unsavedContinueWithoutSaving() {
+            const tab = pendingTabAfterSave;
+            // Le modifiche restano nel builder: non le butto via, smetto solo di chiedere.
+            unsavedGuardDismissedFingerprint = paletteFingerprint(state.palette);
+            closeUnsavedChangesModal();
+            if (tab) switchTab(tab);
         }
 
         function switchTab(tab) {
@@ -1661,12 +1772,15 @@
         }
 
         function closeSaveModal() {
+            pendingTabAfterSave = null;
             const modal = document.getElementById('saveModal');
             modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
         async function confirmSavePalette() {
             if (!currentUser) return;
+            // closeSaveModal() azzera pendingTabAfterSave, quindi lo tengo da parte.
+            const continueTab = pendingTabAfterSave;
             const nameInput = document.getElementById('paletteNameInput').value.trim();
             const name = nameInput || `${state.palette[0].name} & ${state.palette[1].name}`;
 
@@ -1689,6 +1803,7 @@
                             });
                             showLoadedPaletteBanner(existing.id, name);
                             showToast("Palette sovrascritta nel guardaroba!");
+                            if (continueTab) switchTab(continueTab);
                         } catch (err) {
                             console.error('Save palette error:', err);
                             showToast("Errore nel salvataggio della palette");
@@ -1712,6 +1827,7 @@
                 showLoadedPaletteBanner(newDocRef.id, name);
                 closeSaveModal();
                 showToast("Palette salvata nel guardaroba!");
+                if (continueTab) switchTab(continueTab);
             } catch (err) {
                 console.error('Save palette error:', err);
                 showToast("Errore nel salvataggio della palette");
@@ -1893,39 +2009,49 @@
 
         function showLoadedPaletteBanner(id, name) {
             loadedPaletteId = id;
+            unsavedGuardDismissedFingerprint = null;
             document.getElementById('loadedPaletteName').innerText = name;
             document.getElementById('loadedPaletteBanner').classList.remove('hidden');
         }
 
         function hideLoadedPaletteBanner() {
             loadedPaletteId = null;
+            unsavedGuardDismissedFingerprint = null;
             document.getElementById('loadedPaletteBanner').classList.add('hidden');
+        }
+
+        async function persistLoadedPalette() {
+            if (!currentUser || !loadedPaletteId) return false;
+            const paletteId = loadedPaletteId;
+            const existing = state.savedPalettes.find(p => p.id === paletteId);
+            const name = existing ? existing.name : document.getElementById('loadedPaletteName').innerText;
+            try {
+                const { db, doc, updateDoc } = window.fb;
+                await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', paletteId), {
+                    date: new Date().toLocaleDateString('it-IT'),
+                    baseHex: state.baseColor,
+                    harmonyMode: state.harmonyMode,
+                    palette: JSON.parse(JSON.stringify(state.palette))
+                });
+                unsavedGuardDismissedFingerprint = null;
+                showToast(`Palette "${name}" aggiornata!`);
+                return true;
+            } catch (err) {
+                console.error('Update palette error:', err);
+                showToast("Errore nell'aggiornamento della palette");
+                return false;
+            }
         }
 
         function updateLoadedPalette() {
             if (!currentUser || !loadedPaletteId) return;
-            const paletteId = loadedPaletteId;
-            const existing = state.savedPalettes.find(p => p.id === paletteId);
+            const existing = state.savedPalettes.find(p => p.id === loadedPaletteId);
             const name = existing ? existing.name : document.getElementById('loadedPaletteName').innerText;
 
             openConfirmActionModal(
                 'Aggiornare la palette?',
                 `Aggiorni "${name}" con la combinazione attuale? I colori salvati in precedenza verranno sovrascritti.`,
-                async function () {
-                    try {
-                        const { db, doc, updateDoc } = window.fb;
-                        await updateDoc(doc(db, 'users', currentUser.uid, 'palettes', paletteId), {
-                            date: new Date().toLocaleDateString('it-IT'),
-                            baseHex: state.baseColor,
-                            harmonyMode: state.harmonyMode,
-                            palette: JSON.parse(JSON.stringify(state.palette))
-                        });
-                        showToast(`Palette "${name}" aggiornata!`);
-                    } catch (err) {
-                        console.error('Update palette error:', err);
-                        showToast("Errore nell'aggiornamento della palette");
-                    }
-                },
+                persistLoadedPalette,
                 'Aggiorna'
             );
         }
@@ -2493,41 +2619,126 @@
             const item = state.shoppingListItems[index];
             if (!item) return;
             pendingRenameShoppingKey = item.key;
+            pendingShoppingItem = { ...item };
+
             document.getElementById('renameShoppingNameInput').value = item.name;
+
+            const hex = (item.hex || '#000000').toUpperCase();
+            document.getElementById('renameShoppingColorInput').value = hex;
+            document.getElementById('renameShoppingColorHex').innerText = hex;
+
+            const supportsTwoTone = supportsTwoToneLayer(item.layerIndex);
+            document.getElementById('renameShoppingTwoToneSection').classList.toggle('hidden', !supportsTwoTone);
+
+            const isTwoTone = supportsTwoTone && !!item.isTwoTone;
+            const hex2 = (item.hex2 || '#FFFFFF').toUpperCase();
+            document.getElementById('renameShoppingTwoToneCheckbox').checked = isTwoTone;
+            document.getElementById('renameShoppingColor2Input').value = hex2;
+            document.getElementById('renameShoppingColor2Hex').innerText = hex2;
+            const row = document.getElementById('renameShoppingHex2Row');
+            row.classList.toggle('hidden', !isTwoTone);
+            row.classList.toggle('flex', isTwoTone);
+
             const modal = document.getElementById('renameShoppingModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function toggleRenameShoppingTwoTone() {
+            const checked = document.getElementById('renameShoppingTwoToneCheckbox').checked;
+            const row = document.getElementById('renameShoppingHex2Row');
+            row.classList.toggle('hidden', !checked);
+            row.classList.toggle('flex', checked);
         }
 
         function closeRenameShoppingModal() {
             const modal = document.getElementById('renameShoppingModal');
             modal.classList.add('opacity-0', 'pointer-events-none');
             pendingRenameShoppingKey = null;
+            pendingShoppingItem = null;
+        }
+
+        // Il capo da acquistare non è un documento a sé: esiste perché quel colore
+        // compare in una palette salvata. Cambiarne il colore significa quindi
+        // cambiarlo nelle palette che lo usano, altrimenti la modifica non avrebbe
+        // nulla su cui attaccarsi.
+        async function propagateShoppingColorToPalettes(oldItem, next) {
+            const matches = (item, idx) => idx === oldItem.layerIndex
+                && item.hex === oldItem.hex
+                && !!item.isTwoTone === !!oldItem.isTwoTone
+                && (!oldItem.isTwoTone || (item.hex2 || null) === (oldItem.hex2 || null));
+
+            const toUpdate = [];
+            state.savedPalettes.forEach(p => {
+                if (!Array.isArray(p.palette)) return;
+                let touched = false;
+                const updated = p.palette.map((item, idx) => {
+                    if (!matches(item, idx)) return item;
+                    touched = true;
+                    return { ...item, hex: next.hex, hex2: next.hex2, isTwoTone: next.isTwoTone };
+                });
+                if (touched) toUpdate.push({ id: p.id, palette: updated });
+            });
+
+            if (toUpdate.length === 0) return;
+
+            const { db, doc, writeBatch } = window.fb;
+            const batch = writeBatch(db);
+            toUpdate.forEach(p => batch.update(doc(db, 'users', currentUser.uid, 'palettes', p.id), { palette: p.palette }));
+            await batch.commit();
         }
 
         async function confirmRenameShoppingItem() {
-            if (!currentUser || !pendingRenameShoppingKey) return;
+            if (!currentUser || !pendingRenameShoppingKey || !pendingShoppingItem) return;
             const newName = document.getElementById('renameShoppingNameInput').value.trim();
             if (!newName) return;
-            const key = pendingRenameShoppingKey;
+
+            const oldItem = pendingShoppingItem;
+            const oldKey = pendingRenameShoppingKey;
+
+            const supportsTwoTone = supportsTwoToneLayer(oldItem.layerIndex);
+            const isTwoTone = supportsTwoTone && document.getElementById('renameShoppingTwoToneCheckbox').checked;
+            const hex = document.getElementById('renameShoppingColorInput').value.toUpperCase();
+            const hex2 = isTwoTone ? document.getElementById('renameShoppingColor2Input').value.toUpperCase() : null;
+
+            const colorChanged = hex !== (oldItem.hex || '').toUpperCase()
+                || !!isTwoTone !== !!oldItem.isTwoTone
+                || (isTwoTone && hex2 !== (oldItem.hex2 || '').toUpperCase());
+
+            const newKey = `${oldItem.layerIndex}|${hex}|${isTwoTone ? (hex2 || '') : ''}`;
 
             try {
-                const { db, doc, collection, addDoc, updateDoc, serverTimestamp } = window.fb;
-                const existing = state.shoppingItemNames[key];
-                if (existing) {
-                    await updateDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', existing.id), { name: newName });
+                const { db, doc, collection, addDoc, updateDoc, deleteDoc, serverTimestamp } = window.fb;
+
+                if (colorChanged) {
+                    await propagateShoppingColorToPalettes(oldItem, { hex, hex2, isTwoTone });
+                }
+
+                // Il nome personalizzato è indicizzato per colore: se il colore cambia,
+                // l'etichetta va spostata sulla nuova chiave.
+                const oldOverride = state.shoppingItemNames[oldKey];
+                const newOverride = state.shoppingItemNames[newKey];
+
+                if (newOverride && newOverride.id !== (oldOverride && oldOverride.id)) {
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', newOverride.id), { name: newName });
+                    if (oldOverride) {
+                        await deleteDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', oldOverride.id));
+                    }
+                } else if (oldOverride) {
+                    await updateDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', oldOverride.id), { key: newKey, name: newName, v: 2 });
                 } else {
                     await addDoc(collection(db, 'users', currentUser.uid, 'shoppingItemNames'), {
-                        key: key,
+                        key: newKey,
                         name: newName,
                         v: 2,
                         createdAt: serverTimestamp()
                     });
                 }
+
                 closeRenameShoppingModal();
-                showToast("Nome aggiornato!");
+                showToast(colorChanged ? "Capo aggiornato" : "Nome aggiornato");
             } catch (err) {
-                console.error('Rename shopping item error:', err);
-                showToast("Errore nel salvataggio del nome");
+                console.error('Edit shopping item error:', err);
+                showToast("Errore nel salvataggio del capo");
             }
         }
 
