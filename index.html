@@ -577,8 +577,8 @@
                         <option value="recent">Più recenti</option>
                         <option value="name">Nome</option>
                         <option value="jacket">Colore giacca</option>
-                        <option value="pants">Colore pantalone</option>
                         <option value="shirt">Colore camicia</option>
+                        <option value="pants">Colore pantalone</option>
                     </select>
                 </div>
 
@@ -908,7 +908,11 @@
             collectionFilter: null
         };
 
-        const layerCatalogLabels = ['01. Pantalone', '02. Camicia', '03. Giacca', '04. Scarpe & Accessori'];
+        // Ordine dall'alto verso il basso. L'ultimo livello (Accenti) è opzionale.
+        const layerCatalogLabels = ['01. Giacca', '02. Camicia', '03. Pantalone', '04. Scarpe & Accessori', '05. Accenti'];
+        const LAYER = { JACKET: 0, SHIRT: 1, TROUSERS: 2, SHOES: 3, ACCENT: 4 };
+        const TWO_TONE_LAYERS = [LAYER.JACKET, LAYER.SHIRT, LAYER.ACCENT];
+        const supportsTwoToneLayer = (idx) => TWO_TONE_LAYERS.includes(idx);
 
         let pendingRenameId = null;
         let confirmActionCallback = null;
@@ -1114,6 +1118,78 @@
             }
         }
 
+        // I livelli passano da "pantalone-first" a ordine dall'alto: giacca, camicia,
+        // pantalone, scarpe. Cambiano sia gli indici numerici sia le etichette, quindi
+        // la chiave di riconoscimento è l'etichetta vecchia, che è univoca.
+        async function migrateLayerOrder(uid) {
+            const OLD_TO_NEW = {
+                '01. Pantalone':          { index: LAYER.TROUSERS, label: '03. Pantalone' },
+                '02. Camicia':            { index: LAYER.SHIRT,    label: '02. Camicia' },
+                '03. Giacca':             { index: LAYER.JACKET,   label: '01. Giacca' },
+                '04. Scarpe & Accessori': { index: LAYER.SHOES,    label: '04. Scarpe & Accessori' }
+            };
+            const OLD_ORDER = ['03. Giacca', '02. Camicia', '01. Pantalone', '04. Scarpe & Accessori'];
+            const isOldLabel = (l) => l === '01. Pantalone' || l === '03. Giacca';
+
+            try {
+                const { db, collection, getDocs, writeBatch } = window.fb;
+                const [garmentsSnap, palettesSnap, namesSnap] = await Promise.all([
+                    getDocs(collection(db, 'users', uid, 'garments')),
+                    getDocs(collection(db, 'users', uid, 'palettes')),
+                    getDocs(collection(db, 'users', uid, 'shoppingItemNames'))
+                ]);
+
+                const batch = writeBatch(db);
+                let changed = false;
+
+                garmentsSnap.forEach(d => {
+                    const label = d.data().layerLabel;
+                    if (!isOldLabel(label)) return;
+                    const map = OLD_TO_NEW[label];
+                    batch.update(d.ref, { layerIndex: map.index, layerLabel: map.label });
+                    changed = true;
+                });
+
+                palettesSnap.forEach(d => {
+                    const data = d.data();
+                    if (!Array.isArray(data.palette)) return;
+                    if (!data.palette.some(it => it && isOldLabel(it.layer))) return;
+
+                    const byLabel = {};
+                    data.palette.forEach(it => { if (it && it.layer) byLabel[it.layer] = it; });
+                    // Se manca un livello non riordino: meglio lasciare intatto che corrompere.
+                    if (!OLD_ORDER.every(l => byLabel[l])) return;
+
+                    batch.update(d.ref, {
+                        palette: OLD_ORDER.map(old => ({ ...byLabel[old], layer: OLD_TO_NEW[old].label }))
+                    });
+                    changed = true;
+                });
+
+                // Le chiavi della lista acquisti iniziano con l'indice del livello.
+                // Il campo `v` marca i documenti già convertiti: senza, un secondo giro
+                // rimapperebbe 0<->2 all'indietro.
+                const INDEX_REMAP = { '0': String(LAYER.TROUSERS), '1': String(LAYER.SHIRT), '2': String(LAYER.JACKET), '3': String(LAYER.SHOES) };
+                namesSnap.forEach(d => {
+                    const data = d.data();
+                    if (data.v === 2 || typeof data.key !== 'string') return;
+                    const parts = data.key.split('|');
+                    const remapped = INDEX_REMAP[parts[0]];
+                    if (remapped === undefined) return;
+                    parts[0] = remapped;
+                    batch.update(d.ref, { key: parts.join('|'), v: 2 });
+                    changed = true;
+                });
+
+                if (changed) {
+                    await batch.commit();
+                    showToast("Ordine aggiornato: giacca, camicia, pantalone");
+                }
+            } catch (err) {
+                console.error('Layer order migration error:', err);
+            }
+        }
+
         function switchTab(tab) {
             ['builder', 'palettes', 'collections', 'garments', 'shopping'].forEach(t => {
                 const panel = document.getElementById('panel-' + t);
@@ -1151,7 +1227,11 @@
         function attachFirestoreListeners(uid) {
             const { db, collection, query, orderBy, onSnapshot } = window.fb;
 
-            migrateLegacyLayers(uid);
+            // In sequenza: prima la rimozione delle Calze, poi il riordino dei livelli.
+            (async () => {
+                await migrateLegacyLayers(uid);
+                await migrateLayerOrder(uid);
+            })();
 
             const palettesQuery = query(collection(db, 'users', uid, 'palettes'), orderBy('createdAt', 'desc'));
             unsubscribePalettes = onSnapshot(palettesQuery, (snapshot) => {
@@ -1256,8 +1336,8 @@
             }
             const [h, s, l] = hexToHsl(hex);
 
-            if (layerIndex === 0) return 'Pantalone Base Sartoriale';
-            if (layerIndex === 3) return 'Pelle Espresso / Cuoio';
+            if (layerIndex === LAYER.TROUSERS) return 'Pantalone Base Sartoriale';
+            if (layerIndex === LAYER.SHOES) return 'Pelle Espresso / Cuoio';
 
             if (l < 15) return 'Dark Night';
             if (l > 88) return 'Soft Ivory / Bianco Lino';
@@ -1328,13 +1408,46 @@
                 p3_hex = '#3B2319';
             }
 
+            const hadAccent = state.palette.length > LAYER.ACCENT;
+
+            // Ordine dall'alto verso il basso: giacca, camicia, pantalone, scarpe.
             state.palette = [
-                { layer: '01. Pantalone', hex: p0, note: 'Ancora neutra del guardaroba', name: generateSartorialName(p0, 0) },
-                { layer: '02. Camicia', hex: p1_hex, hex2: p1_hex2, isTwoTone: isTwoTone, note: 'Complementare o righe accentate', name: generateSartorialName(p1_hex, 1) },
-                { layer: '03. Giacca', hex: p2_hex, note: 'Tono desaturato per la giacca spezzata', name: generateSartorialName(p2_hex, 2) },
-                { layer: '04. Scarpe & Accessori', hex: p3_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p3_hex, 3) }
+                { layer: layerCatalogLabels[LAYER.JACKET], hex: p2_hex, note: 'Tono desaturato per la giacca spezzata', name: generateSartorialName(p2_hex, LAYER.JACKET) },
+                { layer: layerCatalogLabels[LAYER.SHIRT], hex: p1_hex, hex2: p1_hex2, isTwoTone: isTwoTone, note: 'Complementare o righe accentate', name: generateSartorialName(p1_hex, LAYER.SHIRT) },
+                { layer: layerCatalogLabels[LAYER.TROUSERS], hex: p0, note: 'Ancora neutra del guardaroba', name: generateSartorialName(p0, LAYER.TROUSERS) },
+                { layer: layerCatalogLabels[LAYER.SHOES], hex: p3_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p3_hex, LAYER.SHOES) }
             ];
 
+            if (hadAccent) state.palette.push(buildAccentLayer());
+
+            renderMoodboard();
+            renderSartorialLayers();
+        }
+
+        // L'accento nasce complementare alla giacca, così stacca senza stonare.
+        function buildAccentLayer() {
+            const [h, s] = hexToHsl(state.palette[LAYER.JACKET].hex);
+            const accentHex = hslToHex((h + 180) % 360, Math.min(70, Math.max(45, s + 25)), 45);
+            return {
+                layer: layerCatalogLabels[LAYER.ACCENT],
+                hex: accentHex,
+                hex2: null,
+                isTwoTone: false,
+                note: 'Cravatta, pochette, cintura',
+                name: generateSartorialName(accentHex, LAYER.ACCENT)
+            };
+        }
+
+        function addAccentLayer() {
+            if (state.palette.length > LAYER.ACCENT) return;
+            state.palette.push(buildAccentLayer());
+            renderMoodboard();
+            renderSartorialLayers();
+        }
+
+        function removeAccentLayer() {
+            if (state.palette.length <= LAYER.ACCENT) return;
+            state.palette.splice(LAYER.ACCENT, 1);
             renderMoodboard();
             renderSartorialLayers();
         }
@@ -1389,7 +1502,7 @@
                 layerCard.className = 'card card-hover p-4 rise';
                 layerCard.style.animationDelay = `${idx * 70}ms`;
 
-                const supportsTwoTone = idx === 1 || idx === 2; // 02. Camicia, 03. Giacca
+                const supportsTwoTone = supportsTwoToneLayer(idx);
                 const isTwoTone = !!item.isTwoTone;
 
                 const swatchStyle = (isTwoTone && item.hex2)
@@ -1412,6 +1525,12 @@
                             <div id="layerName-${idx}" class="font-display text-lg text-navy leading-tight mt-0.5 truncate">${item.name}</div>
                             <div id="layerHexDisplay-${idx}" class="font-mono-p text-[11px] text-muted mt-0.5">${hexDisplay}</div>
                         </div>
+
+                        ${idx === LAYER.ACCENT ? `
+                            <button onclick="removeAccentLayer()" class="btn btn-quiet w-8 h-8 rounded-lg shrink-0" title="Togli l'accento" aria-label="Togli l'accento">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        ` : ''}
                     </div>
 
                     <div class="flex items-center justify-between gap-2 mt-3.5 pt-3.5 flex-wrap" style="border-top:1px solid var(--line);">
@@ -1450,6 +1569,18 @@
                 `;
                 container.appendChild(layerCard);
             });
+
+            if (state.palette.length <= LAYER.ACCENT) {
+                const addCard = document.createElement('button');
+                addCard.className = 'w-full rounded-2xl p-4 flex items-center justify-center gap-2 text-sm font-semibold rise transition';
+                addCard.style.cssText = 'border:1px dashed var(--line); color: var(--muted); background: transparent;';
+                addCard.style.animationDelay = `${state.palette.length * 70}ms`;
+                addCard.onmouseenter = () => { addCard.style.borderColor = 'rgba(184,145,42,.6)'; addCard.style.color = 'var(--navy)'; };
+                addCard.onmouseleave = () => { addCard.style.borderColor = 'var(--line)'; addCard.style.color = 'var(--muted)'; };
+                addCard.onclick = addAccentLayer;
+                addCard.innerHTML = `<i class="fa-solid fa-plus text-[11px]"></i> Aggiungi accento <span class="eyebrow">facoltativo</span>`;
+                container.appendChild(addCard);
+            }
         }
 
         function patchLayerCard(idx) {
@@ -1493,7 +1624,7 @@
             newHex = newHex.toUpperCase();
             if (colorNum === 1) {
                 state.palette[index].hex = newHex;
-                if (index === 0) state.baseColor = newHex;
+                if (index === LAYER.TROUSERS) state.baseColor = newHex;
             } else {
                 state.palette[index].hex2 = newHex;
             }
@@ -1609,7 +1740,7 @@
             }
 
             const key = state.sortKey || 'recent';
-            const layerIndex = key === 'pants' ? 0 : key === 'shirt' ? 1 : key === 'jacket' ? 2 : -1;
+            const layerIndex = key === 'jacket' ? LAYER.JACKET : key === 'shirt' ? LAYER.SHIRT : key === 'pants' ? LAYER.TROUSERS : -1;
 
             if (key === 'name') {
                 list.sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
@@ -1870,7 +2001,7 @@
 
         function updateAddGarmentTwoToneVisibility() {
             const layerIndex = parseInt(document.getElementById('addGarmentLayerSelect').value, 10);
-            const supportsTwoTone = layerIndex === 1 || layerIndex === 2;
+            const supportsTwoTone = supportsTwoToneLayer(layerIndex);
             document.getElementById('addGarmentTwoToneSection').classList.toggle('hidden', !supportsTwoTone);
             if (!supportsTwoTone) {
                 document.getElementById('addGarmentTwoToneCheckbox').checked = false;
@@ -1972,7 +2103,7 @@
             const hex = document.getElementById('addGarmentColorInput').value.toUpperCase();
             const nameInput = document.getElementById('addGarmentNameInput').value.trim();
             const name = nameInput || generateSartorialName(hex, layerIndex);
-            const isTwoTone = (layerIndex === 1 || layerIndex === 2) && document.getElementById('addGarmentTwoToneCheckbox').checked;
+            const isTwoTone = supportsTwoToneLayer(layerIndex) && document.getElementById('addGarmentTwoToneCheckbox').checked;
             const hex2 = isTwoTone ? document.getElementById('addGarmentColor2Input').value.toUpperCase() : null;
 
             const buildGarmentData = () => ({
@@ -2126,7 +2257,7 @@
                 state.palette[layerIndex].hex2 = garment.hex2;
             }
             state.palette[layerIndex].name = garment.name;
-            if (layerIndex === 0) state.baseColor = garment.hex;
+            if (layerIndex === LAYER.TROUSERS) state.baseColor = garment.hex;
 
             renderMoodboard();
             renderSartorialLayers();
@@ -2145,7 +2276,7 @@
                 state.palette[layerIndex].hex2 = item.hex2;
             }
             state.palette[layerIndex].name = item.name;
-            if (layerIndex === 0) state.baseColor = item.hex;
+            if (layerIndex === LAYER.TROUSERS) state.baseColor = item.hex;
 
             renderMoodboard();
             renderSartorialLayers();
@@ -2388,6 +2519,7 @@
                     await addDoc(collection(db, 'users', currentUser.uid, 'shoppingItemNames'), {
                         key: key,
                         name: newName,
+                        v: 2,
                         createdAt: serverTimestamp()
                     });
                 }
