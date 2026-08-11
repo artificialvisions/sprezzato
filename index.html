@@ -252,6 +252,11 @@
             border-color: rgba(184,145,42,.55);
             background: linear-gradient(180deg, rgba(184,145,42,.06), #fff 60%);
         }
+        .btn-icon.is-wished {
+            background: rgba(140,47,57,.1);
+            border-color: rgba(140,47,57,.35);
+            color: #8C2F39;
+        }
         .btn-icon.is-locked {
             background: var(--navy);
             border-color: var(--navy);
@@ -643,7 +648,7 @@
                 <div class="mb-6">
                     <span class="eyebrow">Da comprare</span>
                     <h2 class="font-display text-3xl sm:text-4xl text-navy leading-tight mt-1">Lista acquisti</h2>
-                    <p class="text-sm text-muted mt-2 max-w-lg">I colori che usi nelle combinazioni salvate ma che non hai ancora in guardaroba.</p>
+                    <p class="text-sm text-muted mt-2 max-w-lg">I colori che ti mancano: quelli delle combinazioni salvate e quelli che aggiungi dal builder con <i class="fa-solid fa-bag-shopping text-[11px]"></i>.</p>
                 </div>
                 <div id="shoppingListContainer" class="space-y-8">
                     <!-- Generate via JS -->
@@ -955,7 +960,8 @@
             garmentSearch: '',
             collections: [],
             collectionFilter: null,
-            lockedLayers: []
+            lockedLayers: [],
+            wishlist: []
         };
 
         // Ordine dall'alto verso il basso. L'ultimo livello (Accenti) è opzionale.
@@ -983,6 +989,7 @@
         let unsubscribeGarments = null;
         let unsubscribeShoppingNames = null;
         let unsubscribeCollections = null;
+        let unsubscribeWishlist = null;
         let loadedPaletteId = null;
 
         // Sartorial Color Names Dictionary
@@ -1101,6 +1108,7 @@
             if (unsubscribeGarments) { unsubscribeGarments(); unsubscribeGarments = null; }
             if (unsubscribeShoppingNames) { unsubscribeShoppingNames(); unsubscribeShoppingNames = null; }
             if (unsubscribeCollections) { unsubscribeCollections(); unsubscribeCollections = null; }
+            if (unsubscribeWishlist) { unsubscribeWishlist(); unsubscribeWishlist = null; }
 
             if (user) {
                 document.getElementById('authScreen').classList.add('hidden');
@@ -1122,6 +1130,7 @@
                 state.shoppingItemNames = {};
                 state.collections = [];
                 state.collectionFilter = null;
+                state.wishlist = [];
             }
         }
 
@@ -1415,6 +1424,15 @@
                 renderShoppingList();
             }, (err) => {
                 console.error('Shopping item names sync error:', err);
+            });
+
+            const wishlistQuery = collection(db, 'users', uid, 'wishlist');
+            unsubscribeWishlist = onSnapshot(wishlistQuery, (snapshot) => {
+                state.wishlist = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderShoppingList();
+                renderSartorialLayers();
+            }, (err) => {
+                console.error('Wishlist sync error:', err);
             });
 
             const collectionsQuery = collection(db, 'users', uid, 'collections');
@@ -1760,9 +1778,14 @@
                             <button onclick="openLoadGarmentModal(${idx})" class="btn-icon" title="Usa un capo del guardaroba">
                                 <i class="fa-solid fa-vest text-xs"></i>
                             </button>
-                            <button onclick="openSaveGarmentModal(${idx})" class="btn-icon" title="Salva questo capo nel guardaroba">
+                            <button onclick="openSaveGarmentModal(${idx})" class="btn-icon" title="Ce l'ho: salvalo nel guardaroba">
                                 <i class="fa-regular fa-bookmark text-xs"></i>
                             </button>
+                            ${!isLayerOwned(idx, item) ? `
+                                <button onclick="addLayerToWishlist(${idx})" class="btn-icon ${isLayerInWishlist(idx, item) ? 'is-wished' : ''}" title="${isLayerInWishlist(idx, item) ? 'Già nella lista acquisti' : 'Mi manca: mettilo in lista acquisti'}">
+                                    <i class="fa-solid fa-bag-shopping text-xs"></i>
+                                </button>
+                            ` : ''}
                         </div>
 
                         ${supportsTwoTone ? `
@@ -2591,30 +2614,106 @@
             }
         }
 
+        function shoppingKeyFor(layerIndex, hex, hex2, isTwoTone) {
+            return `${layerIndex}|${(hex || '').toUpperCase()}|${isTwoTone ? (hex2 || '').toUpperCase() : ''}`;
+        }
+
+        // Due sorgenti: i colori delle palette salvate che non possiedi (derivati)
+        // e quelli messi in lista a mano dal builder. Stessa chiave, quindi si fondono.
         function getShoppingListItems() {
             const map = new Map();
+
+            const ensure = (layerIndex, layerLabel, hex, hex2, isTwoTone, name) => {
+                const key = shoppingKeyFor(layerIndex, hex, hex2, isTwoTone);
+                if (!map.has(key)) {
+                    const override = state.shoppingItemNames[key];
+                    map.set(key, {
+                        key: key,
+                        layerIndex: layerIndex,
+                        layerLabel: layerLabel,
+                        hex: hex,
+                        hex2: hex2 || null,
+                        isTwoTone: !!isTwoTone,
+                        name: override ? override.name : name,
+                        paletteNames: [],
+                        wishlistId: null
+                    });
+                }
+                return map.get(key);
+            };
+
             state.savedPalettes.forEach(saved => {
                 if (!Array.isArray(saved.palette)) return;
                 saved.palette.forEach((item, idx) => {
                     if (isLayerOwned(idx, item)) return;
-                    const key = `${idx}|${item.hex}|${item.isTwoTone ? (item.hex2 || '') : ''}`;
-                    if (!map.has(key)) {
-                        const override = state.shoppingItemNames[key];
-                        map.set(key, {
-                            key: key,
-                            layerIndex: idx,
-                            layerLabel: item.layer,
-                            hex: item.hex,
-                            hex2: item.hex2 || null,
-                            isTwoTone: !!item.isTwoTone,
-                            name: override ? override.name : item.name,
-                            paletteNames: []
-                        });
-                    }
-                    map.get(key).paletteNames.push(saved.name);
+                    ensure(idx, item.layer, item.hex, item.hex2, item.isTwoTone, item.name)
+                        .paletteNames.push(saved.name);
                 });
             });
+
+            state.wishlist.forEach(w => {
+                if (isLayerOwned(w.layerIndex, w)) return;
+                ensure(w.layerIndex, w.layerLabel, w.hex, w.hex2, w.isTwoTone, w.name).wishlistId = w.id;
+            });
+
             return Array.from(map.values());
+        }
+
+        function isLayerInWishlist(idx, item) {
+            const key = shoppingKeyFor(idx, item.hex, item.hex2, item.isTwoTone);
+            return state.wishlist.some(w => shoppingKeyFor(w.layerIndex, w.hex, w.hex2, w.isTwoTone) === key);
+        }
+
+        async function addLayerToWishlist(idx) {
+            if (!currentUser) return;
+            const item = state.palette[idx];
+            if (!item) return;
+
+            if (isLayerOwned(idx, item)) {
+                showToast("Ce l'hai già nel guardaroba");
+                return;
+            }
+            if (isLayerInWishlist(idx, item)) {
+                showToast("È già nella lista acquisti");
+                return;
+            }
+
+            try {
+                const { db, collection, addDoc, serverTimestamp } = window.fb;
+                await addDoc(collection(db, 'users', currentUser.uid, 'wishlist'), {
+                    layerIndex: idx,
+                    layerLabel: item.layer,
+                    name: item.name,
+                    hex: (item.hex || '').toUpperCase(),
+                    hex2: item.isTwoTone ? (item.hex2 || '').toUpperCase() : null,
+                    isTwoTone: !!item.isTwoTone,
+                    createdAt: serverTimestamp()
+                });
+                showToast(`"${item.name}" aggiunto alla lista acquisti`);
+            } catch (err) {
+                console.error('Add to wishlist error:', err);
+                showToast("Errore nell'aggiunta alla lista");
+            }
+        }
+
+        function removeShoppingItemFromWishlist(index) {
+            const item = state.shoppingListItems[index];
+            if (!item || !item.wishlistId || !currentUser) return;
+            openConfirmActionModal(
+                'Togliere dalla lista?',
+                `"${item.name}" verrà tolto dalla lista acquisti.`,
+                async function () {
+                    try {
+                        const { db, doc, deleteDoc } = window.fb;
+                        await deleteDoc(doc(db, 'users', currentUser.uid, 'wishlist', item.wishlistId));
+                        showToast("Tolto dalla lista");
+                    } catch (err) {
+                        console.error('Remove wishlist error:', err);
+                        showToast("Errore nella rimozione");
+                    }
+                },
+                'Togli'
+            );
         }
 
         function renderShoppingList() {
@@ -2658,10 +2757,17 @@
                                     <i class="fa-solid fa-pen text-[11px]"></i>
                                 </button>
                             </div>
-                            <p class="text-[11px] text-muted truncate" title="${paletteList}">Serve per: ${paletteList}</p>
-                            <button onclick="markShoppingItemPurchased(${i})" class="btn btn-primary w-full py-2 text-xs" title="Aggiungi al guardaroba capi">
-                                <i class="fa-solid fa-bag-shopping text-[11px]"></i> Acquista
-                            </button>
+                            <p class="text-[11px] text-muted truncate" title="${paletteList}">${it.paletteNames.length ? `Serve per: ${paletteList}` : 'Aggiunto a mano'}</p>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="markShoppingItemPurchased(${i})" class="btn btn-primary flex-1 py-2 text-xs" title="Aggiungi al guardaroba capi">
+                                    <i class="fa-solid fa-bag-shopping text-[11px]"></i> Acquista
+                                </button>
+                                ${it.wishlistId && it.paletteNames.length === 0 ? `
+                                    <button onclick="removeShoppingItemFromWishlist(${i})" class="btn btn-quiet w-8 h-8 rounded-lg shrink-0" title="Togli dalla lista" aria-label="Togli dalla lista">
+                                        <i class="fa-solid fa-xmark text-[11px]"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -2697,6 +2803,9 @@
                 const nameOverride = state.shoppingItemNames[item.key];
                 if (nameOverride) {
                     await deleteDoc(doc(db, 'users', currentUser.uid, 'shoppingItemNames', nameOverride.id));
+                }
+                if (item.wishlistId) {
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'wishlist', item.wishlistId));
                 }
                 showToast(`"${item.name}" aggiunto al guardaroba capi!`);
             } catch (err) {
