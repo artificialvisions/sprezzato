@@ -247,6 +247,27 @@
         .btn-icon:hover { border-color: rgba(184,145,42,.6); color: var(--brass); transform: translateY(-1px); }
         .btn-icon:active { transform: scale(.94); }
 
+        /* ---------- Livello bloccato ---------- */
+        .layer-locked {
+            border-color: rgba(184,145,42,.55);
+            background: linear-gradient(180deg, rgba(184,145,42,.06), #fff 60%);
+        }
+        .btn-icon.is-locked {
+            background: var(--navy);
+            border-color: var(--navy);
+            color: var(--ivory);
+        }
+        .btn-icon.is-locked:hover { color: var(--brass-light); border-color: var(--navy); }
+        .pill-lock {
+            display: inline-flex; align-items: center; gap: .3rem;
+            padding: .15rem .5rem;
+            border-radius: 9999px;
+            font-size: 10px; font-weight: 600;
+            background: rgba(184,145,42,.14);
+            color: #8A6D1C;
+            border: 1px solid rgba(184,145,42,.35);
+        }
+
         /* ---------- Input ---------- */
         .field {
             width: 100%;
@@ -504,10 +525,10 @@
                         <span id="loadedPaletteName" class="hidden"></span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="generateHarmony(false)" class="btn btn-ghost px-3.5 py-2 text-xs" title="Genera una combinazione completamente nuova">
+                        <button onclick="generateHarmony(false)" class="btn btn-ghost px-3.5 py-2 text-xs" title="Combinazione completamente nuova: ignora e azzera i lucchetti">
                             <i class="fa-solid fa-shuffle text-[11px]"></i> Genera
                         </button>
-                        <button onclick="generateHarmony(true)" class="btn btn-ghost px-3.5 py-2 text-xs" title="Cambia armonia mantenendo il colore del pantalone">
+                        <button onclick="generateHarmony(true)" class="btn btn-ghost px-3.5 py-2 text-xs" title="Rigenera solo i capi non bloccati">
                             <i class="fa-solid fa-rotate text-[11px]"></i> Varia
                         </button>
                         <button onclick="openSaveFlow()" class="btn btn-primary px-4 py-2 text-xs">
@@ -933,7 +954,8 @@
             paletteSearch: '',
             garmentSearch: '',
             collections: [],
-            collectionFilter: null
+            collectionFilter: null,
+            lockedLayers: []
         };
 
         // Ordine dall'alto verso il basso. L'ultimo livello (Accenti) è opzionale.
@@ -988,7 +1010,7 @@
 
         // Initialize Application
         window.onload = function () {
-            generateHarmony(true);
+            generateHarmony(false);
         };
 
         // ---- Autenticazione (Firebase) ----
@@ -1488,17 +1510,52 @@
             return 'Tangerine / Terracotta';
         }
 
-        function generateHarmony(keepBase = false) {
+        // I blocchi vivono solo in memoria: dicono cosa NON toccare quando rigenero.
+        function pruneLocks() {
+            state.lockedLayers = state.lockedLayers.filter(i => i < state.palette.length);
+        }
+
+        function isLayerLocked(idx) {
+            return state.lockedLayers.includes(idx);
+        }
+
+        function toggleLayerLock(idx) {
+            if (isLayerLocked(idx)) {
+                state.lockedLayers = state.lockedLayers.filter(i => i !== idx);
+            } else {
+                // Bloccarli tutti renderebbe Genera e Varia inutili.
+                if (state.palette.length - state.lockedLayers.length <= 1) {
+                    showToast("Almeno un capo deve restare libero");
+                    return;
+                }
+                state.lockedLayers = [...state.lockedLayers, idx];
+            }
+            renderSartorialLayers();
+        }
+
+        // respectLocks = false è il "Genera": riparte da zero e azzera anche i lucchetti,
+        // così non restano icone di blocco su capi appena cambiati.
+        function generateHarmony(respectLocks = false) {
             clearLoadedPalette();
+            if (!respectLocks) state.lockedLayers = [];
+            pruneLocks();
+            const locked = [...state.lockedLayers];
+            const previous = state.palette.map(p => ({ ...p }));
+            // Il colore base è quello del pantalone: se è bloccato non può cambiare.
+            const trousersLocked = locked.includes(LAYER.TROUSERS);
+
             const presetBases = ['#0A1128', '#183451', '#2B2D42', '#3D0C11', '#1E3A2B', '#4A2E1A'];
 
-            if (!keepBase) {
+            if (!trousersLocked) {
                 state.baseColor = presetBases[Math.floor(Math.random() * presetBases.length)];
             }
 
             const [h, s, l] = hexToHsl(state.baseColor);
             const modes = ['Complementare', 'Riviera & Citrus', 'Warm Autumn', 'Split-Complementare', 'Monocromatico'];
-            state.harmonyMode = modes[Math.floor(Math.random() * modes.length)];
+            // Escludo l'armonia attuale: con il pantalone bloccato ripescare la stessa
+            // farebbe sembrare che "Varia" non abbia fatto nulla.
+            const pool = modes.filter(m => m !== state.harmonyMode);
+            state.harmonyMode = pool[Math.floor(Math.random() * pool.length)];
 
             let p0 = state.baseColor;
             let p1_hex, p1_hex2, isTwoTone = false;
@@ -1522,6 +1579,15 @@
                 isTwoTone = Math.random() > 0.5;
                 p2_hex = hslToHex(h, Math.max(10, s - 10), Math.min(70, l + 30));
                 p3_hex = hslToHex(h, 30, 15);
+            } else if (state.harmonyMode === 'Split-Complementare') {
+                // I due toni ai lati del complementare, non il complementare secco.
+                const leftH = (h + 150) % 360;
+                const rightH = (h + 210) % 360;
+                p1_hex = hslToHex(leftH, Math.min(70, s + 15), Math.min(78, Math.max(52, l + 28)));
+                p1_hex2 = '#F3ECDE';
+                isTwoTone = Math.random() > 0.5;
+                p2_hex = hslToHex(rightH, 28, 62);
+                p3_hex = '#2E1D16';
             } else {
                 const compH = (h + 180) % 360;
                 p1_hex = hslToHex(compH, Math.min(75, s + 20), Math.min(75, Math.max(45, l + 20)));
@@ -1541,7 +1607,18 @@
                 { layer: layerCatalogLabels[LAYER.SHOES], hex: p3_hex, note: 'Pelle o camoscio di finitura', name: generateSartorialName(p3_hex, LAYER.SHOES) }
             ];
 
-            if (hadAccent) state.palette.push(buildAccentLayer());
+            // Rimetto i bloccati prima di derivare l'accento, che nasce dalla giacca.
+            locked.forEach(i => {
+                if (i < LAYER.ACCENT && previous[i]) state.palette[i] = previous[i];
+            });
+
+            if (hadAccent) {
+                state.palette.push(
+                    locked.includes(LAYER.ACCENT) && previous[LAYER.ACCENT]
+                        ? previous[LAYER.ACCENT]
+                        : buildAccentLayer()
+                );
+            }
 
             renderMoodboard();
             renderSartorialLayers();
@@ -1571,6 +1648,7 @@
         function removeAccentLayer() {
             if (state.palette.length <= LAYER.ACCENT) return;
             state.palette.splice(LAYER.ACCENT, 1);
+            pruneLocks();
             renderMoodboard();
             renderSartorialLayers();
         }
@@ -1627,6 +1705,8 @@
 
                 const supportsTwoTone = supportsTwoToneLayer(idx);
                 const isTwoTone = !!item.isTwoTone;
+                const locked = isLayerLocked(idx);
+                if (locked) layerCard.classList.add('layer-locked');
 
                 const swatchStyle = (isTwoTone && item.hex2)
                     ? `background: linear-gradient(135deg, ${item.hex} 50%, ${item.hex2} 50%)`
@@ -1641,6 +1721,7 @@
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="eyebrow">${item.layer}</span>
+                                ${locked ? `<span class="pill-lock"><i class="fa-solid fa-lock text-[9px]"></i> Bloccato</span>` : ''}
                                 <span id="layerOwnBadge-${idx}">${!isLayerOwned(idx, item) ? `
                                     <span class="pill-buy"><i class="fa-solid fa-bag-shopping text-[9px]"></i> Da acquistare</span>
                                 ` : ''}</span>
@@ -1670,6 +1751,9 @@
                                 </label>
                             ` : ''}
 
+                            <button onclick="toggleLayerLock(${idx})" class="btn-icon ${locked ? 'is-locked' : ''}" title="${locked ? 'Sblocca: Varia potrà cambiarlo' : 'Blocca: Varia non lo cambierà'}" aria-pressed="${locked}">
+                                <i class="fa-solid ${locked ? 'fa-lock' : 'fa-lock-open'} text-xs"></i>
+                            </button>
                             <button onclick="randomizeLayer(${idx})" class="btn-icon" title="Colore casuale per questo capo">
                                 <i class="fa-solid fa-shuffle text-xs"></i>
                             </button>
