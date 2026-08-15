@@ -961,7 +961,8 @@
             collections: [],
             collectionFilter: null,
             lockedLayers: [],
-            wishlist: []
+            wishlist: [],
+            loaded: { palettes: false, garments: false, wishlist: false, collections: false }
         };
 
         // Ordine dall'alto verso il basso. L'ultimo livello (Accenti) è opzionale.
@@ -1131,6 +1132,7 @@
                 state.collections = [];
                 state.collectionFilter = null;
                 state.wishlist = [];
+                state.loaded = { palettes: false, garments: false, wishlist: false, collections: false };
             }
         }
 
@@ -1380,6 +1382,7 @@
 
         function attachFirestoreListeners(uid) {
             const { db, collection, query, orderBy, onSnapshot } = window.fb;
+            state.loaded = { palettes: false, garments: false, wishlist: false, collections: false };
 
             // In sequenza: prima la rimozione delle Calze, poi il riordino dei livelli.
             (async () => {
@@ -1390,6 +1393,7 @@
             const palettesQuery = query(collection(db, 'users', uid, 'palettes'), orderBy('createdAt', 'desc'));
             unsubscribePalettes = onSnapshot(palettesQuery, (snapshot) => {
                 state.savedPalettes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                state.loaded.palettes = true;
                 renderSavedPalettes();
                 renderShoppingList();
                 renderCollectionsTab();
@@ -1401,6 +1405,7 @@
             const garmentsQuery = query(collection(db, 'users', uid, 'garments'), orderBy('createdAt', 'desc'));
             unsubscribeGarments = onSnapshot(garmentsQuery, (snapshot) => {
                 state.savedGarments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                state.loaded.garments = true;
                 renderGarmentCatalog();
                 renderShoppingList();
                 renderSartorialLayers();
@@ -1429,6 +1434,7 @@
             const wishlistQuery = collection(db, 'users', uid, 'wishlist');
             unsubscribeWishlist = onSnapshot(wishlistQuery, (snapshot) => {
                 state.wishlist = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                state.loaded.wishlist = true;
                 renderShoppingList();
                 renderSartorialLayers();
             }, (err) => {
@@ -1437,6 +1443,7 @@
 
             const collectionsQuery = collection(db, 'users', uid, 'collections');
             unsubscribeCollections = onSnapshot(collectionsQuery, (snapshot) => {
+                state.loaded.collections = true;
                 state.collections = snapshot.docs
                     .map(d => ({ id: d.id, ...d.data() }))
                     .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'it', { sensitivity: 'base' }));
@@ -2033,6 +2040,38 @@
             row.innerHTML = chips.join('');
         }
 
+        // Finché il primo snapshot non arriva mostro uno scheletro: dire "non hai
+        // nulla" mentre i dati sono ancora in volo è una bugia.
+        function skeletonCards(count, barHeight) {
+            let out = '';
+            for (let i = 0; i < count; i++) {
+                out += `
+                    <div class="card overflow-hidden">
+                        <div class="shimmer" style="height:${barHeight}px"></div>
+                        <div class="p-4 space-y-2">
+                            <div class="shimmer rounded" style="height:14px;width:62%"></div>
+                            <div class="shimmer rounded" style="height:10px;width:38%"></div>
+                        </div>
+                    </div>`;
+            }
+            return out;
+        }
+
+        function skeletonRows(count) {
+            let out = '';
+            for (let i = 0; i < count; i++) {
+                out += `
+                    <div class="card p-3 flex items-center gap-3">
+                        <div class="shimmer rounded-xl shrink-0" style="width:48px;height:48px"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="shimmer rounded" style="height:13px;width:55%"></div>
+                            <div class="shimmer rounded" style="height:10px;width:30%"></div>
+                        </div>
+                    </div>`;
+            }
+            return out;
+        }
+
         function emptyState(icon, title, subtitle) {
             return `
                 <div class="col-span-full py-14 text-center rounded-2xl" style="border:1px dashed var(--line);">
@@ -2048,6 +2087,11 @@
 
             const grid = document.getElementById('savedPalettesGrid');
             grid.innerHTML = '';
+
+            if (!state.loaded.palettes) {
+                grid.innerHTML = skeletonCards(3, 84);
+                return;
+            }
 
             if (state.savedPalettes.length === 0) {
                 grid.innerHTML = emptyState('fa-layer-group', 'Nessuna combinazione', 'Crea un abbinamento nella scheda Crea e salvalo per ritrovarlo qui.');
@@ -2553,6 +2597,11 @@
             if (!container) return;
             container.innerHTML = '';
 
+            if (!state.loaded.garments) {
+                container.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${skeletonRows(3)}</div>`;
+                return;
+            }
+
             if (state.savedGarments.length === 0) {
                 container.innerHTML = emptyState('fa-vest', 'Guardaroba vuoto', 'Aggiungi i capi che possiedi: le combinazioni ti diranno cosa manca.');
                 return;
@@ -2720,6 +2769,11 @@
             const container = document.getElementById('shoppingListContainer');
             if (!container) return;
             container.innerHTML = '';
+
+            if (!state.loaded.palettes || !state.loaded.garments || !state.loaded.wishlist) {
+                container.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${skeletonRows(3)}</div>`;
+                return;
+            }
 
             state.shoppingListItems = getShoppingListItems();
             const items = state.shoppingListItems;
@@ -3253,6 +3307,11 @@
             const container = document.getElementById('collectionsListContainer');
             if (!container) return;
 
+            if (!state.loaded.collections || !state.loaded.palettes) {
+                container.innerHTML = skeletonCards(2, 44);
+                return;
+            }
+
             if (state.collections.length === 0) {
                 container.innerHTML = emptyState('fa-folder-open', 'Nessuna collezione', 'Raggruppa le tue combinazioni per stagione, occasione o come preferisci.');
                 return;
@@ -3397,7 +3456,8 @@
             signInWithEmailAndPassword, signOut
         } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import {
-            getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+            getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+            collection, doc, addDoc, updateDoc, deleteDoc,
             onSnapshot, query, orderBy, writeBatch, getDocs, serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
@@ -3412,7 +3472,18 @@
 
         const firebaseApp = initializeApp(firebaseConfig);
         const auth = getAuth(firebaseApp);
-        const db = getFirestore(firebaseApp);
+        // Cache su IndexedDB: dopo il primo accesso i dati compaiono subito da locale
+        // e la rete serve solo a sincronizzare. In navigazione privata può fallire:
+        // in quel caso si continua senza cache.
+        let db;
+        try {
+            db = initializeFirestore(firebaseApp, {
+                localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+            });
+        } catch (err) {
+            console.warn('Cache locale non disponibile, uso Firestore senza persistenza:', err);
+            db = getFirestore(firebaseApp);
+        }
 
         window.fb = {
             auth, db,
